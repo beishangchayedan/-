@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="澳洲记账本">
+<meta name="theme-color" content="#fafaf8">
+<meta name="description" content="澳洲留学生离线记账本 — 隐私至上">
+<title>澳洲记账本 (Aussie Ledger)</title>
+
+<!-- ====== PWA Manifest (inline via blob) ====== -->
+<script>
+(function(){var m={name:'澳洲记账本 (Aussie Ledger)',short_name:'澳洲记账本',description:'澳洲留学生离线记账本',start_url:'./index.html',scope:'./',display:'standalone',orientation:'portrait',background_color:'#f7f8f6',theme_color:'#f7f8f6',icons:[{src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192"><rect width="192" height="192" rx="36" fill="#f7f8f6"/><text x="96" y="120" text-anchor="middle" font-size="96">📒</text></svg>'),sizes:'192x192',type:'image/svg+xml'}]};var b=new Blob([JSON.stringify(m)],{type:'application/json'});var u=URL.createObjectURL(b);var l=document.createElement('link');l.rel='manifest';l.href=u;document.head.appendChild(l);})();
+</script>
+
+<style>
+/* ================================================================
+   CSS Variables — Warm White Minimalist Theme
+   ================================================================ */
+:root {
+  --bg: #f7f8f6;
+  --bg-card: #ffffff;
+  --bg-warm: #eef3ef;
+  --text: #20231f;
+  --text-secondary: #5c6f65;
+  --text-muted: #8d9a92;
+  --border: #d9e1dc;
+  --border-light: #e9eee9;
+  --accent: #2f6f5e;
+  --accent-green: #527c62;
+  --accent-rose: #b96b45;
+  --danger: #a84f42;
+  --warning-bg: #fff7df;
+  --warning-border: #e2c56b;
+  --shadow: 0 1px 2px rgba(20,30,24,0.05);
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-xs: 5px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', monospace;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-height: 64px;
+}
+
+/* ================================================================
+   Reset & Base
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea, button { font-family: var(--font); }
+button { min-height: 40px; }
+
+/* ================================================================
+   App Shell
+   ================================================================ */
+#app {
+  display: flex; flex-direction: column;
+  height: 100%; height: 100dvh; max-width: 480px; margin: 0 auto;
+  position: relative; overflow: hidden;
+}
+
+/* Status bar spacer for iPhone notch */
+#status-spacer {
+  height: env(safe-area-inset-top, 0px);
+  min-height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+/* Header */
+#header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 16px; flex-shrink: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+#header-title {
+  font-size: 17px; font-weight: 650; color: var(--text);
+  letter-spacing: 0;
+}
+#header-subtitle { font-size: 10px; color: var(--text-muted); }
+
+/* Main content area — pages */
+#main {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 14px 18px;
+  contain: layout style;
+}
+#main > .page { display: none; animation: fadeIn 0.2s ease; }
+#main > .page.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translate3d(0,6px,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+
+/* Bottom Navigation */
+#nav {
+  display: flex; flex-shrink: 0;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg);
+  padding-bottom: var(--safe-bottom);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 7px 0 6px; gap: 2px;
+  cursor: pointer; transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  border: none; background: none;
+  font-family: var(--font);
+}
+.nav-item .nav-icon { font-size: 22px; line-height: 1; }
+.nav-item .nav-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0; }
+.nav-item .nav-label-en { font-size: 7px; color: var(--text-muted); opacity: 0.6; }
+.nav-item.active .nav-label { color: var(--text); }
+.nav-item.active .nav-label-en { color: var(--text-secondary); }
+
+/* ================================================================
+   Shared Components
+   ================================================================ */
+.card {
+  background: var(--bg-card); border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  padding: 14px; margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-header {
+  font-size: 12px; color: var(--text-secondary);
+  margin-bottom: 10px; letter-spacing: 0.5px;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; border: none; border-radius: var(--radius-sm);
+  padding: 11px 16px; font-size: 14px; cursor: pointer;
+  transition: opacity 0.15s; font-family: var(--font);
+  line-height: 1.2;
+}
+.btn:active { opacity: 0.7; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+.btn-small { padding: 7px 11px; font-size: 11px; border-radius: var(--radius-xs); min-height: 32px; }
+.btn-block { width: 100%; }
+
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 11px; border-radius: 999px;
+  font-size: 11px; border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text);
+  cursor: pointer; white-space: nowrap;
+}
+.tag.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tag .tag-icon { font-size: 14px; }
+
+.input {
+  width: 100%; border: 1px solid var(--border);
+  background: var(--bg-card); padding: 11px 12px;
+  border-radius: var(--radius-sm); font-size: 14px;
+  color: var(--text); outline: none;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text-muted); }
+
+/* ================================================================
+   Dashboard Page
+   ================================================================ */
+.dash-total {
+  text-align: center; padding: 18px 0 14px;
+}
+.dash-total .period {
+  font-size: 11px; color: var(--text-secondary);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.dash-total .amount {
+  font-size: 42px; font-weight: 650; color: var(--text);
+  margin: 4px 0; letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.dash-total .amount .cents { font-size: 18px; color: var(--text-secondary); }
+.dash-total .label { font-size: 12px; color: var(--text-secondary); }
+.dash-total .change {
+  display: inline-block; padding: 3px 10px; border-radius: 10px;
+  font-size: 11px; margin-top: 4px;
+}
+.change-down { background: #e7f1ea; color: #3d6d4d; }
+.change-up { background: #f5e8e2; color: #93523c; }
+
+.dash-categories { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.dash-cat {
+  min-width: 0; background: var(--bg-card); border-radius: var(--radius-sm);
+  padding: 12px 8px; text-align: center; border: 1px solid var(--border-light);
+}
+.dash-cat .cat-icon { font-size: 22px; margin-bottom: 2px; }
+.dash-cat .cat-name { font-size: 10px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-cat .cat-name-en { font-size: 7px; color: var(--text-muted); }
+.dash-cat .cat-amount { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 2px; }
+.dash-cat .cat-bar {
+  width: 100%; height: 3px; background: var(--border-light);
+  border-radius: 2px; margin-top: 6px; overflow: hidden;
+}
+.dash-cat .cat-bar-fill { height: 100%; border-radius: 2px; }
+
+.dash-insight {
+  background: var(--bg-card); border-radius: var(--radius);
+  padding: 14px 16px; border: 1px solid var(--border-light);
+  line-height: 1.6; font-size: 13px; color: var(--text);
+}
+
+.dash-backup-warn {
+  background: var(--warning-bg); border: 1px solid var(--warning-border);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-size: 11px; color: #8c7020; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+
+/* Month navigation */
+.month-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; margin-bottom: 8px;
+}
+.month-nav button {
+  background: none; border: none; font-size: 18px;
+  cursor: pointer; color: var(--text-secondary); padding: 8px;
+}
+.month-nav .month-label { font-size: 13px; color: var(--text); min-width: 112px; text-align: center; }
+
+/* ================================================================
+   Add Entry Page
+   ================================================================ */
+.amount-display {
+  text-align: center; padding: 14px 0 16px;
+}
+.amount-display .currency { font-size: 20px; color: var(--text-secondary); font-weight: 300; }
+.amount-display .amount-input {
+  font-size: 44px; font-weight: 650; color: var(--text);
+  letter-spacing: 0; border: none; background: transparent;
+  text-align: center; width: min(72vw, 260px); outline: none;
+  font-family: var(--font);
+}
+.amount-display .amount-label { font-size: 11px; color: var(--text-secondary); }
+
+.calc-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2px; margin-bottom: 16px;
+}
+.calc-btn {
+  padding: 14px; font-size: 20px; background: var(--bg-card);
+  border: 1px solid var(--border-light); cursor: pointer;
+  font-family: var(--font); color: var(--text);
+  transition: background 0.1s;
+}
+.calc-btn:active { background: var(--bg-warm); }
+.calc-btn.calc-action { font-size: 14px; color: var(--text-secondary); }
+.calc-btn.calc-enter { background: var(--text); color: var(--bg); font-size: 14px; }
+
+.cat-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px; margin-bottom: 12px;
+}
+.cat-chip {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; min-width: 0; min-height: 70px; padding: 9px 4px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+  cursor: pointer; transition: all 0.12s;
+}
+.cat-chip.selected {
+  background: var(--accent); border-color: var(--accent);
+}
+.cat-chip.selected .cat-chip-name { color: var(--bg); }
+.cat-chip.selected .cat-chip-en { color: rgba(250,250,248,0.6); }
+.cat-chip .cat-chip-icon { font-size: 18px; }
+.cat-chip .cat-chip-name { font-size: 10px; color: var(--text); text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-chip .cat-chip-en { font-size: 7px; color: var(--text-muted); text-align: center; }
+
+.entry-extras { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.entry-extras .tag { font-size: 10px; }
+
+/* ================================================================
+   Transactions Page
+   ================================================================ */
+.txn-month-header {
+  font-size: 12px; color: var(--text-secondary);
+  padding: 8px 0; letter-spacing: 0.5px;
+  position: sticky; top: 0; background: var(--bg); z-index: 1;
+}
+.txn-item {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  background: var(--bg-card); border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-bottom: 6px;
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--accent);
+  contain: layout style paint;
+}
+.txn-item .txn-icon { font-size: 20px; flex-shrink: 0; }
+.txn-item .txn-info { flex: 1; min-width: 0; }
+.txn-item .txn-title { font-size: 13px; color: var(--text); }
+.txn-item .txn-meta { font-size: 10px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.txn-item .txn-amount { font-size: 14px; font-weight: 650; flex-shrink: 0; text-align: right; }
+.txn-item .txn-amount.expense { color: var(--text); }
+.txn-item .txn-amount.income { color: #5c7a52; }
+
+.filter-bar {
+  display: flex; gap: 6px; margin-bottom: 12px;
+  overflow-x: auto; padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.search-bar {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+.search-bar .input { flex: 1; padding: 10px 12px; font-size: 12px; }
+
+/* ================================================================
+   Vault Page
+   ================================================================ */
+.pin-display {
+  display: flex; gap: 9px; justify-content: center;
+  margin: 18px 0;
+}
+.pin-dot {
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent; transition: background 0.15s;
+}
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+
+.pin-pad {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; max-width: 280px; margin: 0 auto;
+}
+.pin-key {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 58px; padding: 12px; font-size: 22px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--font); color: var(--text);
+  text-align: center;
+}
+.pin-key:active { background: var(--bg-warm); }
+.pin-key.pin-del { font-size: 12px; color: var(--text-secondary); }
+
+.vault-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-card); border-radius: var(--radius-sm);
+  padding: 13px; margin-bottom: 8px;
+  border: 1px solid var(--border-light); cursor: pointer;
+}
+.vault-item .vault-icon { font-size: 24px; flex-shrink: 0; }
+.vault-item .vault-info { flex: 1; min-width: 0; }
+.vault-item .vault-title { font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vault-item .vault-type { font-size: 9px; color: var(--text-muted); }
+.vault-item .vault-arrow { color: var(--text-muted); font-size: 14px; }
+
+.vault-detail-field {
+  display: grid; grid-template-columns: minmax(90px, 35%) minmax(0, 1fr); gap: 10px;
+  padding: 12px 0; border-bottom: 1px solid var(--border-light);
+}
+.vault-detail-field .field-label { font-size: 11px; color: var(--text-secondary); }
+.vault-detail-field .field-value { font-size: 13px; color: var(--text); text-align: right; overflow-wrap: anywhere; user-select: text; -webkit-user-select: text; }
+
+.vault-security-note {
+  background: #eef6f1;
+  border: 1px solid #cfe2d5;
+  border-radius: var(--radius);
+  color: #315b43;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  margin: 12px 0;
+}
+.vault-security-note.danger {
+  background: #fff0ed;
+  border-color: #efc4bb;
+  color: var(--danger);
+}
+
+/* ================================================================
+   Modal / Overlay
+   ================================================================ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+  z-index: 100; display: flex; align-items: flex-end;
+  justify-content: center;
+}
+.modal-sheet {
+  background: var(--bg); border-radius: 14px 14px 0 0;
+  width: 100%; max-width: 480px; max-height: 80vh;
+  overflow-y: auto; padding: 20px 20px calc(20px + var(--safe-bottom));
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.modal-title { font-size: 16px; color: var(--text); }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); }
+
+/* ================================================================
+   Toast
+   ================================================================ */
+.toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - 32px), 420px);
+  background: var(--text); color: var(--bg); padding: 10px 16px;
+  border-radius: 999px; font-size: 12px; z-index: 200;
+  text-align: center;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+  pointer-events: none;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ================================================================
+   Empty State
+   ================================================================ */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text-muted);
+}
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state .empty-text { font-size: 13px; }
+
+/* ================================================================
+   Utility
+   ================================================================ */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-8 { gap: 8px; }
+
+@media (min-width: 420px) {
+  .cat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .amount-display .amount-input { font-size: 50px; }
+}
+
+@media (max-width: 360px) {
+  #header { padding-left: 12px; padding-right: 12px; }
+  #main { padding-left: 12px; padding-right: 12px; }
+  .dash-total .amount { font-size: 36px; }
+  .search-bar { flex-wrap: wrap; }
+  .search-bar .btn { width: 100%; }
+  .pin-key { min-height: 54px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Status Bar Spacer -->
+  <div id="status-spacer"></div>
+
+  <!-- Header -->
+  <div id="header">
+    <div>
+      <div id="header-title">澳洲记账本 <span style="font-size:12px;color:var(--text-secondary);">(Aussie Ledger)</span></div>
+      <div id="header-subtitle"></div>
+    </div>
+    <button class="btn btn-small btn-secondary" onclick="App.showBackupModal()" title="备份 (Backup)">💾 备份 <span style="font-size:9px;color:var(--text-muted)">Backup</span></button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main">
+    <!-- Dashboard Page -->
+    <div class="page active" id="page-dashboard"></div>
+
+    <!-- Add Entry Page -->
+    <div class="page" id="page-add"></div>
+
+    <!-- Transactions Page -->
+    <div class="page" id="page-transactions"></div>
+
+    <!-- Vault Page -->
+    <div class="page" id="page-vault"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav id="nav">
+    <button class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">仪表盘</span>
+      <span class="nav-label-en">Dashboard</span>
+    </button>
+    <button class="nav-item" data-page="add">
+      <span class="nav-icon">✏️</span>
+      <span class="nav-label">记账</span>
+      <span class="nav-label-en">Add</span>
+    </button>
+    <button class="nav-item" data-page="transactions">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">流水</span>
+      <span class="nav-label-en">Records</span>
+    </button>
+    <button class="nav-item" data-page="vault">
+      <span class="nav-icon">🔒</span>
+      <span class="nav-label">保险库</span>
+      <span class="nav-label-en">Vault</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Modal Container -->
+<div id="modal-container"></div>
+
+<!-- ====== Service Worker Registration ====== -->
+<script>
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
+</script>
+
+<!-- ====== Application Code ====== -->
+<script>
+(function() {
+'use strict';
+
+/* ================================================================
+   Constants — Australian Expense Categories
+   ================================================================ */
+var CATEGORIES = [
+  { id:'groceries',    icon:'🥑', zh:'食品杂货',   en:'Groceries',     color:'#d4a574' },
+  { id:'eating-out',   icon:'☕', zh:'外出就餐',   en:'Eating Out',    color:'#c49474' },
+  { id:'rent',         icon:'🏠', zh:'房租',       en:'Rent',          color:'#8a9b8e' },
+  { id:'utilities',    icon:'💡', zh:'水电燃气',   en:'Utilities',     color:'#a89880' },
+  { id:'transport',    icon:'🚌', zh:'公共交通',   en:'Transport',     color:'#b89878' },
+  { id:'car',          icon:'🚗', zh:'汽车油费',   en:'Car & Fuel',    color:'#9c8c7c' },
+  { id:'phone',        icon:'📱', zh:'手机网络',   en:'Phone & Net',   color:'#a49888' },
+  { id:'health',       icon:'🏥', zh:'医疗健康',   en:'Health',        color:'#c4a8a0' },
+  { id:'education',    icon:'📚', zh:'学习用品',   en:'Education',     color:'#a89488' },
+  { id:'tuition',      icon:'🎓', zh:'学费',       en:'Tuition',       color:'#9b8a8a' },
+  { id:'shopping',     icon:'🛍️', zh:'购物',       en:'Shopping',      color:'#b8a494' },
+  { id:'entertainment',icon:'🎬', zh:'娱乐',       en:'Entertainment', color:'#b09890' },
+  { id:'fitness',      icon:'💪', zh:'健身',       en:'Fitness',       color:'#9ca890' },
+  { id:'insurance',    icon:'🛡️', zh:'保险',       en:'Insurance',     color:'#98a0a8' },
+  { id:'pharmacy',     icon:'💊', zh:'药房',       en:'Pharmacy',      color:'#aca498' },
+  { id:'travel',       icon:'✈️', zh:'旅行',       en:'Travel',        color:'#a0acb8' },
+  { id:'bank-fees',    icon:'🏦', zh:'银行费用',   en:'Bank Fees',     color:'#a49cb0' },
+  { id:'gifts',        icon:'🎁', zh:'礼物捐赠',   en:'Gifts',         color:'#bca0b0' },
+  { id:'income',       icon:'💰', zh:'收入',       en:'Income',        color:'#7a9b7e' },
+  { id:'other',        icon:'📦', zh:'其他',       en:'Other',         color:'#b0b0b0' }
+];
+
+var PAYMENT_METHODS = [
+  { id:'cash',     zh:'现金',     en:'Cash' },
+  { id:'debit',    zh:'借记卡',   en:'Debit Card' },
+  { id:'credit',   zh:'信用卡',   en:'Credit Card' },
+  { id:'transfer', zh:'转账',     en:'Transfer' }
+];
+
+var VAULT_TYPES = [
+  { id:'bank-card', zh:'银行卡',   en:'Bank Card',   icon:'💳' },
+  { id:'tfn',       zh:'税号',     en:'TFN',         icon:'🆔' },
+  { id:'passport',  zh:'护照',     en:'Passport',     icon:'🛂' },
+  { id:'medicare',  zh:'医保卡',   en:'Medicare',    icon:'🏥' },
+  { id:'password',  zh:'密码',     en:'Password',     icon:'🔑' },
+  { id:'other',     zh:'其他',     en:'Other',        icon:'📌' }
+];
+
+/* ================================================================
+   Database Layer — IndexedDB
+   ================================================================ */
+var DB = {
+  _db: null,
+  _name: 'AussieLedgerDB',
+  _version: 2,
+
+  open: function() {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var req = indexedDB.open(self._name, self._version);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('expenses')) {
+          var expStore = db.createObjectStore('expenses', { keyPath: 'id' });
+          expStore.createIndex('date', 'date', { unique: false });
+          expStore.createIndex('category', 'category', { unique: false });
+        }
+        if (!db.objectStoreNames.contains('vault')) {
+          db.createObjectStore('vault', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('attachments')) {
+          var attStore = db.createObjectStore('attachments', { keyPath: 'id' });
+          attStore.createIndex('expenseId', 'expenseId', { unique: false });
+        }
+      };
+      req.onsuccess = function(e) {
+        self._db = e.target.result;
+        resolve(self._db);
+      };
+      req.onerror = function(e) { reject(e.target.error); };
+    });
+  },
+
+  ensure: function() {
+    var self = this;
+    if (self._db) return Promise.resolve(self._db);
+    return self.open();
+  },
+
+  // --- Expense CRUD ---
+  addExpense: function(record) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('expenses', 'readwrite');
+        tx.objectStore('expenses').add(record);
+        tx.oncomplete = function() { resolve(record); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  updateExpense: function(record) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('expenses', 'readwrite');
+        tx.objectStore('expenses').put(record);
+        tx.oncomplete = function() { resolve(record); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  deleteExpense: function(id) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('expenses', 'readwrite');
+        tx.objectStore('expenses').delete(id);
+        tx.oncomplete = function() { resolve(); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  getExpenses: function(options) {
+    var self = this;
+    options = options || {};
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('expenses', 'readonly');
+        var store = tx.objectStore('expenses');
+        var results = [];
+
+        if (options.month) {
+          // options.month = '2026-06'
+          var prefix = options.month;
+          var index = store.index('date');
+          var range = IDBKeyRange.bound(prefix + '-01', prefix + '-31');
+          var req = index.openCursor(range);
+          req.onsuccess = function(e) {
+            var cursor = e.target.result;
+            if (cursor) {
+              if (cursor.value.date.startsWith(prefix)) {
+                results.push(cursor.value);
+              }
+              cursor.continue();
+            } else {
+              // Sort by date descending, then by createdAt descending
+              results.sort(function(a,b) {
+                if (a.date !== b.date) return b.date.localeCompare(a.date);
+                return b.createdAt - a.createdAt;
+              });
+              resolve(results);
+            }
+          };
+          req.onerror = function(e) { reject(e.target.error); };
+        } else if (options.category) {
+          var idx = store.index('category');
+          var req2 = idx.getAll(options.category);
+          req2.onsuccess = function(e) { resolve(e.target.result); };
+          req2.onerror = function(e) { reject(e.target.error); };
+        } else {
+          var req3 = store.getAll();
+          req3.onsuccess = function(e) {
+            var all = e.target.result;
+            all.sort(function(a,b) { return b.date.localeCompare(a.date) || b.createdAt - a.createdAt; });
+            resolve(all);
+          };
+          req3.onerror = function(e) { reject(e.target.error); };
+        }
+      });
+    });
+  },
+
+  getAllExpenses: function() {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('expenses', 'readonly');
+        var req = tx.objectStore('expenses').getAll();
+        req.onsuccess = function(e) { resolve(e.target.result); };
+        req.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  // --- Vault CRUD ---
+  addVaultRecord: function(record) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('vault', 'readwrite');
+        tx.objectStore('vault').add(record);
+        tx.oncomplete = function() { resolve(record); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  updateVaultRecord: function(record) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('vault', 'readwrite');
+        tx.objectStore('vault').put(record);
+        tx.oncomplete = function() { resolve(record); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  deleteVaultRecord: function(id) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('vault', 'readwrite');
+        tx.objectStore('vault').delete(id);
+        tx.oncomplete = function() { resolve(); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  getAllVaultRecords: function() {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('vault', 'readonly');
+        var req = tx.objectStore('vault').getAll();
+        req.onsuccess = function(e) { resolve(e.target.result); };
+        req.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  // --- Attachment CRUD ---
+  addAttachment: function(record) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('attachments', 'readwrite');
+        tx.objectStore('attachments').add(record);
+        tx.oncomplete = function() { resolve(record); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  getAttachments: function(expenseId) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('attachments', 'readonly');
+        var index = tx.objectStore('attachments').index('expenseId');
+        var req = index.getAll(expenseId);
+        req.onsuccess = function(e) { resolve(e.target.result); };
+        req.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  deleteAttachment: function(id) {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('attachments', 'readwrite');
+        tx.objectStore('attachments').delete(id);
+        tx.oncomplete = function() { resolve(); };
+        tx.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  },
+
+  getAllAttachments: function() {
+    var self = this;
+    return self.ensure().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction('attachments', 'readonly');
+        var req = tx.objectStore('attachments').getAll();
+        req.onsuccess = function(e) { resolve(e.target.result); };
+        req.onerror = function(e) { reject(e.target.error); };
+      });
+    });
+  }
+};
+
+/* ================================================================
+   Image Compression
+   ================================================================ */
+function compressImage(file) {
+  return new Promise(function(resolve, reject) {
+    // Only process images
+    if (!file.type.match(/^image\//)) { reject(new Error('Not an image')); return; }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var maxDim = 600;
+        var w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(function(blob) {
+          resolve({ blob: blob, width: w, height: h, sizeBytes: blob.size });
+        }, 'image/jpeg', 0.5);
+      };
+      img.onerror = function() { reject(new Error('Failed to load image')); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function() { reject(new Error('Failed to read file')); };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ================================================================
+   Crypto Module — PBKDF2 + AES-256-GCM
+   ================================================================ */
+var Crypto = {
+  _encoder: new TextEncoder(),
+  _decoder: new TextDecoder(),
+  KDF_ITERATIONS: 250000,
+  LEGACY_ITERATIONS: 100000,
+
+  isAvailable: function() {
+    return !!(window.isSecureContext && window.crypto && crypto.subtle && crypto.getRandomValues);
+  },
+
+  unavailableReason: function() {
+    if (!window.isSecureContext) {
+      return '当前打开地址不是安全上下文。请使用 HTTPS、localhost，或打包成手机 App 后再设置 PIN。';
+    }
+    if (!window.crypto || !crypto.subtle) {
+      return '当前浏览器不支持 Web Crypto 加密 API。';
+    }
+    return '当前环境无法启用安全加密。';
+  },
+
+  requireAvailable: function() {
+    if (!this.isAvailable()) return Promise.reject(new Error(this.unavailableReason()));
+    return Promise.resolve();
+  },
+
+  deriveBits: function(pin, salt, bitLength, iterations) {
+    var self = this;
+    var keyMaterial = self._encoder.encode(pin);
+    return self.requireAvailable()
+      .then(function() {
+        return crypto.subtle.importKey('raw', keyMaterial, 'PBKDF2', false, ['deriveBits']);
+      })
+      .then(function(baseKey) {
+        return crypto.subtle.deriveBits(
+          { name: 'PBKDF2', salt: salt, iterations: iterations || self.KDF_ITERATIONS, hash: 'SHA-256' },
+          baseKey, bitLength || 256
+        );
+      });
+  },
+
+  // Derive a PIN verifier. This is not used as the encryption key.
+  deriveAuthHash: function(pin, salt, iterations) {
+    var self = this;
+    return self.deriveBits(pin, salt, 256, iterations).then(function(bits) {
+      return self._arrayBufferToBase64(bits);
+    });
+  },
+
+  // Derive an AES-GCM key from a different salt than the PIN verifier.
+  deriveAesKey: function(pin, salt, iterations) {
+    var self = this;
+    return self.deriveBits(pin, salt, 256, iterations).then(function(bits) {
+      return crypto.subtle.importKey('raw', bits, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    });
+  },
+
+  // Generate random salt
+  generateSalt: function() {
+    return crypto.getRandomValues(new Uint8Array(16));
+  },
+
+  // Hash PIN for verification
+  hashPin: function(pin, salt) {
+    return this.deriveAuthHash(pin, salt, this.LEGACY_ITERATIONS);
+  },
+
+  // Encrypt plaintext with derived key
+  encrypt: function(plaintext, key) {
+    if (!key) return Promise.reject(new Error('保险库未解锁，不能保存敏感信息。'));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    var data = this._encoder.encode(plaintext);
+    return this.requireAvailable()
+      .then(function() { return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, data); })
+      .then(function(ciphertext) {
+        return {
+          iv: this._arrayBufferToBase64(iv),
+          ciphertext: this._arrayBufferToBase64(new Uint8Array(ciphertext))
+        };
+      }.bind(this));
+  },
+
+  // Decrypt ciphertext with derived key
+  decrypt: function(encryptedObj, key) {
+    if (!key) return Promise.reject(new Error('保险库未解锁，不能读取敏感信息。'));
+    var iv = this._base64ToArrayBuffer(encryptedObj.iv);
+    var ciphertext = this._base64ToArrayBuffer(encryptedObj.ciphertext);
+    return this.requireAvailable()
+      .then(function() { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ciphertext); })
+      .then(function(plaintext) {
+        return this._decoder.decode(plaintext);
+      }.bind(this));
+  },
+
+  _arrayBufferToBase64: function(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var binary = '';
+    for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  },
+
+  _base64ToArrayBuffer: function(base64) {
+    var binary = atob(base64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+};
+
+/* ================================================================
+   Settings Manager
+   ================================================================ */
+var Settings = {
+  _key: 'ledger_settings',
+
+  get: function() {
+    try {
+      var raw = localStorage.getItem(this._key);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  },
+
+  set: function(obj) {
+    localStorage.setItem(this._key, JSON.stringify(obj));
+  },
+
+  hasPin: function() {
+    var s = this.get();
+    return !!(s && ((s.securityVersion === 2 && s.pinHash && s.authSaltBase64 && s.keySaltBase64) || (s.pinHash && s.saltBase64)));
+  },
+
+  setPin: function(pin) {
+    var self = this;
+    return Crypto.requireAvailable().then(function() {
+      var authSalt = Crypto.generateSalt();
+      var keySalt = Crypto.generateSalt();
+      var existing = self.get() || {};
+      var iterations = Crypto.KDF_ITERATIONS;
+      return Crypto.deriveAuthHash(pin, authSalt, iterations).then(function(hash) {
+        var settings = {
+          securityVersion: 2,
+          kdf: 'PBKDF2-SHA-256',
+          cipher: 'AES-256-GCM',
+          iterations: iterations,
+          pinHash: hash,
+          authSaltBase64: Crypto._arrayBufferToBase64(authSalt),
+          keySaltBase64: Crypto._arrayBufferToBase64(keySalt),
+          backupReminderDays: existing.backupReminderDays || 7,
+          lastBackupDate: existing.lastBackupDate || null,
+          lastExportDate: existing.lastExportDate || null,
+          exchangeRate: existing.exchangeRate || 4.7,
+          updatedAt: new Date().toISOString()
+        };
+        self.set(settings);
+        return Crypto.deriveAesKey(pin, keySalt, iterations);
+      });
+    });
+  },
+
+  setLegacyPin: function(pin) {
+    var self = this;
+    var salt = Crypto.generateSalt();
+    return Crypto.hashPin(pin, salt).then(function(hash) {
+      self.set({
+        pinHash: hash,
+        saltBase64: Crypto._arrayBufferToBase64(salt),
+        backupReminderDays: 7,
+        lastBackupDate: null,
+        lastExportDate: null
+      });
+    });
+  },
+
+  verifyPin: function(pin) {
+    var self = this;
+    var s = self.get();
+    if (!s || !s.pinHash) return Promise.resolve(false);
+    if (s.securityVersion === 2 && s.authSaltBase64) {
+      var authSalt = Crypto._base64ToArrayBuffer(s.authSaltBase64);
+      return Crypto.deriveAuthHash(pin, authSalt, s.iterations || Crypto.KDF_ITERATIONS).then(function(hash) {
+        return hash === s.pinHash;
+      });
+    }
+    if (!s.saltBase64) return Promise.resolve(false);
+    var legacySalt = Crypto._base64ToArrayBuffer(s.saltBase64);
+    return Crypto.hashPin(pin, legacySalt).then(function(hash) {
+      return hash === s.pinHash;
+    });
+  },
+
+  getSalt: function() {
+    var s = this.get();
+    if (!s || !s.saltBase64) return null;
+    return Crypto._base64ToArrayBuffer(s.saltBase64);
+  },
+
+  updateBackupDate: function() {
+    var s = this.get() || {};
+    s.lastBackupDate = new Date().toISOString().slice(0,10);
+    this.set(s);
+  },
+
+  daysSinceBackup: function() {
+    var s = this.get();
+    if (!s || !s.lastBackupDate) return 999;
+    var last = new Date(s.lastBackupDate);
+    var now = new Date();
+    return Math.floor((now - last) / (1000*60*60*24));
+  },
+
+  getExchangeRate: function() {
+    var s = this.get();
+    return (s && s.exchangeRate) ? s.exchangeRate : 4.7;
+  },
+
+  saveExchangeRate: function(rate) {
+    var s = this.get() || {};
+    s.exchangeRate = parseFloat(rate);
+    this.set(s);
+  }
+};
+
+/* ================================================================
+   Vault Manager — Encrypted storage
+   ================================================================ */
+var Vault = {
+  _mirrorKey: 'ledger_vault_mirror',
+
+  isUnlocked: false,
+  _derivedKey: null,
+
+  setUnlockedKey: function(key) {
+    this._derivedKey = key;
+    this.isUnlocked = true;
+  },
+
+  unlock: function(pin) {
+    var self = this;
+    return Crypto.requireAvailable().then(function() {
+      var s = Settings.get();
+      if (!s || !s.pinHash) return false;
+
+      if (s.securityVersion === 2 && s.authSaltBase64 && s.keySaltBase64) {
+        var authSalt = Crypto._base64ToArrayBuffer(s.authSaltBase64);
+        var keySalt = Crypto._base64ToArrayBuffer(s.keySaltBase64);
+        var iterations = s.iterations || Crypto.KDF_ITERATIONS;
+        return Crypto.deriveAuthHash(pin, authSalt, iterations).then(function(hash) {
+          if (hash !== s.pinHash) return false;
+          return Crypto.deriveAesKey(pin, keySalt, iterations).then(function(key) {
+            self.setUnlockedKey(key);
+            return true;
+          });
+        });
+      }
+
+      if (!s.saltBase64) return false;
+      var legacySalt = Crypto._base64ToArrayBuffer(s.saltBase64);
+      return Crypto.hashPin(pin, legacySalt).then(function(hash) {
+        if (hash !== s.pinHash) return false;
+        var legacyKeyBytes = Crypto._base64ToArrayBuffer(hash);
+        return crypto.subtle.importKey('raw', legacyKeyBytes, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
+          .then(function(key) {
+            self.setUnlockedKey(key);
+            return self._migrateLegacyCrypto(pin).catch(function(err) {
+              console.error('Legacy vault migration failed:', err);
+            }).then(function() {
+              return true;
+            });
+          });
+      });
+    });
+  },
+
+  lock: function() {
+    this.isUnlocked = false;
+    this._derivedKey = null;
+  },
+
+  requireUnlocked: function() {
+    if (!this.isUnlocked || !this._derivedKey) {
+      return Promise.reject(new Error('保险库未解锁，不能操作敏感信息。'));
+    }
+    return Promise.resolve();
+  },
+
+  add: function(plainRecord) {
+    var self = this;
+    return self.requireUnlocked().then(function() {
+      return Crypto.encrypt(JSON.stringify(plainRecord), self._derivedKey);
+    })
+      .then(function(encrypted) {
+        var vaultRecord = {
+          id: plainRecord.id,
+          encrypted: encrypted,
+          createdAt: plainRecord.createdAt,
+          updatedAt: plainRecord.updatedAt,
+          securityVersion: 2
+        };
+        return DB.addVaultRecord(vaultRecord).then(function() {
+          self._updateMirror();
+          return vaultRecord;
+        });
+      });
+  },
+
+  update: function(plainRecord) {
+    var self = this;
+    return self.requireUnlocked().then(function() {
+      return Crypto.encrypt(JSON.stringify(plainRecord), self._derivedKey);
+    })
+      .then(function(encrypted) {
+        var vaultRecord = {
+          id: plainRecord.id,
+          encrypted: encrypted,
+          createdAt: plainRecord.createdAt,
+          updatedAt: Date.now(),
+          securityVersion: 2
+        };
+        return DB.updateVaultRecord(vaultRecord).then(function() {
+          self._updateMirror();
+          return vaultRecord;
+        });
+      });
+  },
+
+  remove: function(id) {
+    var self = this;
+    return DB.deleteVaultRecord(id).then(function() {
+      self._updateMirror();
+    });
+  },
+
+  getAllDecrypted: function() {
+    var self = this;
+    return self.requireUnlocked().then(function() {
+      return DB.getAllVaultRecords();
+    }).then(function(records) {
+      return Promise.all(records.map(function(r) {
+        return Crypto.decrypt(r.encrypted, self._derivedKey)
+          .then(function(plain) {
+            var obj = JSON.parse(plain);
+            return {
+              id: obj.id || r.id,
+              type: obj.type || r.type || 'other',
+              title: obj.title || r.title || '未命名',
+              fields: obj.fields || [],
+              createdAt: r.createdAt,
+              updatedAt: r.updatedAt
+            };
+          })
+          .catch(function() { return null; });
+      })).then(function(results) {
+        return results.filter(Boolean);
+      });
+    });
+  },
+
+  getDecrypted: function(id) {
+    var self = this;
+    return self.requireUnlocked().then(function() {
+      return DB.getAllVaultRecords();
+    }).then(function(records) {
+      var found = records.find(function(r) { return r.id === id; });
+      if (!found) return null;
+      return Crypto.decrypt(found.encrypted, self._derivedKey)
+        .then(function(plain) {
+          var obj = JSON.parse(plain);
+          return {
+            id: obj.id || found.id, type: obj.type || found.type || 'other', title: obj.title || found.title || '未命名',
+            fields: obj.fields || [], createdAt: found.createdAt, updatedAt: found.updatedAt
+          };
+        });
+    });
+  },
+
+  _updateMirror: function() {
+    try { localStorage.removeItem(Vault._mirrorKey); } catch(e) {}
+  },
+
+  restoreFromMirror: function() {
+    try {
+      var raw = localStorage.getItem(this._mirrorKey);
+      if (!raw) return Promise.resolve(false);
+      var records = JSON.parse(raw);
+      return Promise.all(records.map(function(r) {
+        return DB.addVaultRecord(r).catch(function() { return DB.updateVaultRecord(r); });
+      })).then(function() {
+        localStorage.removeItem(Vault._mirrorKey);
+        return true;
+      });
+    } catch(e) { return Promise.resolve(false); }
+  },
+
+  _migrateLegacyCrypto: function(pin) {
+    var self = this;
+    return self.getAllDecrypted().then(function(records) {
+      return Settings.setPin(pin).then(function(newKey) {
+        self.setUnlockedKey(newKey);
+        return Promise.all(records.map(function(record) {
+          return self.update(record);
+        }));
+      });
+    });
+  }
+};
+
+/* ================================================================
+   Utility Functions
+   ================================================================ */
+function uid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+
+function formatAmount(cents, currency) {
+  var neg = cents < 0;
+  var abs = Math.abs(cents);
+  var dollars = Math.floor(abs / 100);
+  var c = abs % 100;
+  var symbol = (currency === 'CNY') ? '¥' : '$';
+  return (neg ? '-' : '') + symbol + dollars.toLocaleString() + '.' + (c < 10 ? '0' : '') + c;
+}
+
+function toAudCents(cents, currency, rate) {
+  if (currency === 'CNY') return Math.round(cents / (rate || Settings.getExchangeRate()));
+  return cents;
+}
+
+function getMonthStr(date) {
+  // '2026-06-07' -> '2026-06'
+  return date.slice(0, 7);
+}
+
+function getMonthLabel(monthStr) {
+  // '2026-06' -> '2026年6月'
+  var parts = monthStr.split('-');
+  return parts[0] + '年' + parseInt(parts[1],10) + '月';
+}
+
+function getMonthLabelEn(monthStr) {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var parts = monthStr.split('-');
+  return months[parseInt(parts[1],10)-1] + ' ' + parts[0];
+}
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function currentMonthStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function categoryById(id) {
+  return CATEGORIES.find(function(c) { return c.id === id; });
+}
+
+function paymentById(id) {
+  return PAYMENT_METHODS.find(function(p) { return p.id === id; });
+}
+
+function vaultTypeById(id) {
+  return VAULT_TYPES.find(function(t) { return t.id === id; });
+}
+
+/* ================================================================
+   Toast
+   ================================================================ */
+function showToast(msg) {
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(function() { el.remove(); }, 2500);
+}
+
+/* ================================================================
+   Modal Helper
+   ================================================================ */
+function showModal(title, contentHtml, onClose) {
+  var container = document.getElementById('modal-container');
+  var html = '<div class="modal-overlay" onclick="if(event.target===this)this.remove()">';
+  html += '<div class="modal-sheet">';
+  html += '<div class="modal-header">';
+  html += '<span class="modal-title">' + title + '</span>';
+  html += '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">✕</button>';
+  html += '</div>';
+  html += contentHtml;
+  html += '</div></div>';
+  container.innerHTML = html;
+  var overlay = container.querySelector('.modal-overlay');
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) { overlay.remove(); if (onClose) onClose(); }
+  });
+  return overlay;
+}
+
+/* ================================================================
+   Navigation
+   ================================================================ */
+function navigateTo(pageName) {
+  // Hide all pages
+  var pages = document.querySelectorAll('#main > .page');
+  pages.forEach(function(p) { p.classList.remove('active'); });
+
+  // Show target page
+  var target = document.getElementById('page-' + pageName);
+  if (target) target.classList.add('active');
+
+  // Update nav
+  var items = document.querySelectorAll('#nav .nav-item');
+  items.forEach(function(item) {
+    item.classList.remove('active');
+    if (item.dataset.page === pageName) item.classList.add('active');
+  });
+
+  // Render page
+  switch(pageName) {
+    case 'dashboard': renderDashboard(); break;
+    case 'add': renderAddEntry(); break;
+    case 'transactions': renderTransactions(); break;
+    case 'vault': renderVault(); break;
+  }
+
+  // Scroll main to top
+  document.getElementById('main').scrollTop = 0;
+}
+
+/* ================================================================
+   Dashboard Rendering
+   ================================================================ */
+var dashMonth = currentMonthStr();
+
+function renderDashboard() {
+  var month = dashMonth;
+  var html = '';
+
+  // Backup warning
+  var days = Settings.daysSinceBackup();
+  if (days >= 5 && Settings.hasPin()) {
+    html += '<div class="dash-backup-warn" onclick="App.showBackupModal()">⚠️ ' +
+      (days >= 999 ? '尚未备份 (Never backed up)' : '已 ' + days + ' 天未备份 (Days since last backup)') +
+      ' — 点击导出 (Tap to export)</div>';
+  }
+
+  // Month navigation
+  html += '<div class="month-nav">';
+  html += '<button onclick="App.prevMonth()">◀</button>';
+  html += '<span class="month-label">' + getMonthLabel(month) + ' <span style="font-size:10px;color:var(--text-muted)">' + getMonthLabelEn(month) + '</span></span>';
+  html += '<button onclick="App.nextMonth()">▶</button>';
+  html += '</div>';
+
+  document.getElementById('page-dashboard').innerHTML = html;
+
+  // Load data async
+  DB.getExpenses({ month: month }).then(function(expenses) {
+    renderDashboardData(month, expenses);
+  });
+}
+
+function renderDashboardData(month, expenses) {
+  var audTotal = 0, cnyTotal = 0;
+  var catTotals = {};
+  var lastMonthAud = 0, lastMonthCny = 0;
+  var rate = Settings.getExchangeRate();
+
+  expenses.forEach(function(e) {
+    if (e.category === 'income') {
+      // Don't count income in spending total
+    } else {
+      if (e.currency === 'CNY') cnyTotal += e.amount;
+      else audTotal += e.amount;
+      catTotals[e.category] = (catTotals[e.category] || 0) + toAudCents(e.amount, e.currency, rate);
+    }
+  });
+
+  // Get last month for comparison
+  var parts = month.split('-');
+  var y = parseInt(parts[0]), m = parseInt(parts[1]);
+  if (m === 1) { y--; m = 12; } else { m--; }
+  var lastMonth = y + '-' + String(m).padStart(2,'0');
+
+  // Get exchange rate from settings (default ~4.7 CNY per AUD)
+  // Convert CNY to AUD-equivalent for combined total
+  var cnyEquivalent = Math.round(cnyTotal / rate);
+  var combinedTotal = audTotal + cnyEquivalent;
+  var isMultiCurrency = (audTotal > 0 && cnyTotal > 0);
+
+  DB.getExpenses({ month: lastMonth }).then(function(lastExpenses) {
+    lastExpenses.forEach(function(e) {
+      if (e.category !== 'income') {
+        if (e.currency === 'CNY') lastMonthCny += e.amount;
+        else lastMonthAud += e.amount;
+      }
+    });
+    var lastCnyEquiv = Math.round(lastMonthCny / rate);
+    var lastCombined = lastMonthAud + lastCnyEquiv;
+
+    var changeHtml = '';
+    if (lastCombined > 0) {
+      var pct = Math.round((combinedTotal - lastCombined) / lastCombined * 100);
+      if (pct > 0) {
+        changeHtml = '<div class="change change-up">↑ ' + pct + '% 较上月 (vs last month)</div>';
+      } else if (pct < 0) {
+        changeHtml = '<div class="change change-down">↓ ' + Math.abs(pct) + '% 较上月 (vs last month)</div>';
+      } else {
+        changeHtml = '<div class="change" style="background:#f0ebe0;color:#8c7b6b;">持平 (No change)</div>';
+      }
+    }
+
+    // Sort categories by amount descending, exclude income
+    var sorted = Object.entries(catTotals).filter(function(e) { return e[0] !== 'income'; }).sort(function(a,b) { return b[1]-a[1]; });
+    var top3 = sorted.slice(0, 3);
+    var maxCat = top3.length > 0 ? top3[0][1] : 1;
+
+    var catHtml = '';
+    top3.forEach(function(entry) {
+      var cat = categoryById(entry[0]);
+      if (!cat) return;
+      var pct = Math.round(entry[1] / maxCat * 100);
+      catHtml += '<div class="dash-cat">' +
+        '<div class="cat-icon">' + cat.icon + '</div>' +
+        '<div class="cat-name">' + cat.zh + '</div>' +
+        '<div class="cat-name-en">' + cat.en + '</div>' +
+        '<div class="cat-amount">' + formatAmount(entry[1], 'AUD') + '</div>' +
+        '<div class="cat-bar"><div class="cat-bar-fill" style="width:' + pct + '%;background:' + cat.color + ';"></div></div>' +
+        '</div>';
+    });
+
+    // Weekly insight
+    var weekExpenses = expenses.filter(function(e) {
+      if (e.category === 'income') return false;
+      var d = new Date(e.date);
+      var now = new Date();
+      var weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
+      return d >= weekAgo;
+    });
+    var weekTotal = weekExpenses.reduce(function(s, e) { return s + toAudCents(e.amount, e.currency, rate); }, 0);
+
+    // Find top category this week
+    var weekCat = {};
+    weekExpenses.forEach(function(e) {
+      if (e.category !== 'income') weekCat[e.category] = (weekCat[e.category] || 0) + toAudCents(e.amount, e.currency, rate);
+    });
+    var weekTopCat = Object.entries(weekCat).sort(function(a,b) { return b[1]-a[1]; })[0];
+    var insightHtml = '';
+    if (weekTopCat) {
+      var wc = categoryById(weekTopCat[0]);
+      insightHtml = '本周支出 <strong>' + formatAmount(weekTotal, 'AUD') + '</strong>';
+      if (lastCombined > 0) {
+        var weekAvg = lastCombined / 4;
+        if (weekTotal > weekAvg) {
+          insightHtml += '，高于周均水平。';
+        } else {
+          insightHtml += '，<strong style="color:#5c7a52;">低于周均</strong>，控制得当 👍';
+        }
+      }
+      insightHtml += ' 最大支出：' + (wc ? wc.icon + ' ' + wc.zh : '—') + ' ' + formatAmount(weekTopCat[1], 'AUD') + '。';
+    } else {
+      insightHtml = '本周暂无支出记录。开始记账吧 ✍️';
+    }
+
+    var container = document.getElementById('page-dashboard');
+    var existingTotal = container.querySelector('.dash-total');
+    var existingCats = container.querySelector('.dash-categories');
+    var existingInsight = container.querySelector('.dash-insight');
+
+    var currencyDetail = '';
+    if (isMultiCurrency) {
+      currencyDetail = '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">AUD $' + (audTotal/100).toFixed(2) + ' + CNY ¥' + (cnyTotal/100).toFixed(2) + ' (≈' + rate.toFixed(1) + ':1)</div>';
+    } else if (cnyTotal > 0) {
+      currencyDetail = '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">CNY ¥' + (cnyTotal/100).toFixed(2) + '</div>';
+    }
+
+    var totalHtml = '<div class="dash-total">' +
+      '<div class="period">' + getMonthLabel(month) + ' (Monthly Spending)</div>' +
+      '<div class="amount">' + formatAmount(combinedTotal, 'AUD') + '</div>' +
+      currencyDetail +
+      changeHtml +
+      '</div>';
+
+    var catsHtml = top3.length > 0 ? '<div class="card-header">📊 分类占比 (Category Breakdown)</div><div class="dash-categories">' + catHtml + '</div>' : '';
+
+    var insightFullHtml = '<div class="dash-insight">' +
+      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">📝 本周洞察 (Weekly Insight)</div>' +
+      insightHtml +
+      '</div>';
+
+    // Preserve month nav, replace data sections
+    var navHtml = container.querySelector('.month-nav') ? container.querySelector('.month-nav').outerHTML : '';
+    var warnHtml = container.querySelector('.dash-backup-warn') ? container.querySelector('.dash-backup-warn').outerHTML : '';
+    container.innerHTML = warnHtml + navHtml + totalHtml + catsHtml + insightFullHtml;
+  });
+}
+
+/* ================================================================
+   Add Entry Page
+   ================================================================ */
+var addState = {
+  amount: '',
+  category: null,
+  note: '',
+  date: todayStr(),
+  isTaxDeductible: false,
+  paymentMethod: 'debit',
+  currency: 'AUD'
+};
+
+function renderAddEntry() {
+  addState.amount = '';
+  addState.category = null;
+  addState.note = '';
+  addState.date = todayStr();
+  addState.isTaxDeductible = false;
+  addState.paymentMethod = 'debit';
+  addState.currency = 'AUD';
+  addState.pendingImages = [];
+
+  var html = '';
+
+  // Amount display with currency toggle
+  html += '<div class="amount-display">';
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;">';
+  html += '<span id="currency-label" style="font-size:12px;color:var(--text-secondary);">金额 (Amount) · AUD $</span>';
+  html += '<button class="btn btn-small btn-secondary" onclick="App.toggleCurrency()" style="font-size:10px;padding:4px 10px;">🔄 切换 CNY</button>';
+  html += '</div>';
+  html += '<span class="currency" id="currency-symbol">$</span><input class="amount-input" id="amount-input" type="text" inputmode="decimal" placeholder="0.00" value="" oninput="App.onAmountInput(this.value)">';
+  html += '</div>';
+
+  // Category grid
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">选择分类 (Category)</div>';
+  html += '<div class="cat-grid" id="cat-grid">';
+  CATEGORIES.forEach(function(cat) {
+    html += '<div class="cat-chip" data-cat="' + cat.id + '" onclick="App.selectCategory(\'' + cat.id + '\')">';
+    html += '<span class="cat-chip-icon">' + cat.icon + '</span>';
+    html += '<span class="cat-chip-name">' + cat.zh + '</span>';
+    html += '<span class="cat-chip-en">' + cat.en + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Note input
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">备注 (Note) · 可选</div>';
+  html += '<input class="input mb-8" id="note-input" type="text" placeholder="例如: Coles 超市采购 (e.g. Coles groceries)" value="" oninput="addState.note=this.value">';
+
+  // Payment method
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">支付方式 (Payment)</div>';
+  html += '<div class="entry-extras" id="payment-methods">';
+  PAYMENT_METHODS.forEach(function(pm) {
+    html += '<span class="tag' + (pm.id === 'debit' ? ' selected' : '') + '" data-pm="' + pm.id + '" onclick="App.selectPayment(\'' + pm.id + '\')">' + pm.zh + ' <span style="font-size:9px;color:var(--text-muted)">' + pm.en + '</span></span>';
+  });
+  html += '</div>';
+
+  // Tax deductible toggle
+  html += '<div class="entry-extras mb-8">';
+  html += '<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary);cursor:pointer;">';
+  html += '<input type="checkbox" id="tax-check" onchange="addState.isTaxDeductible=this.checked"> 🏷️ 可退税 (Tax Deductible)';
+  html += '</label>';
+  html += '</div>';
+
+  // Image attachments
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">📷 凭证照片 (Receipt) · 可选</div>';
+  html += '<div id="pending-images" style="display:flex;gap:8px;overflow-x:auto;margin-bottom:8px;padding-bottom:4px;"></div>';
+  html += '<input type="file" id="image-picker" accept="image/*" style="display:none;" onchange="App.onImagePicked(this)">';
+  html += '<button class="btn btn-small btn-secondary" onclick="document.getElementById(\'image-picker\').click()" style="width:100%;margin-bottom:10px;">📷 拍照 / 选图 (Camera / Gallery)</button>';
+
+  // Record button
+  html += '<button class="btn btn-primary btn-block" onclick="App.recordExpense()">记录支出 (Record Expense)</button>';
+  html += '<div class="text-center mt-8"><span style="font-size:10px;color:var(--text-muted);">💡 输入金额 → 选分类 → 可选备注 → 拍照 → 记录</span></div>';
+
+  document.getElementById('page-add').innerHTML = html;
+}
+
+function onAmountInput(val) {
+  // Allow only numbers and one decimal point
+  var cleaned = val.replace(/[^0-9.]/g, '');
+  // Only allow one decimal point
+  var parts = cleaned.split('.');
+  if (parts.length > 2) cleaned = parts[0] + '.' + parts.slice(1).join('');
+  // Limit to 2 decimal places
+  if (parts.length === 2 && parts[1].length > 2) {
+    cleaned = parts[0] + '.' + parts[1].slice(0,2);
+  }
+  document.getElementById('amount-input').value = cleaned;
+  addState.amount = cleaned;
+}
+
+function selectCategory(catId) {
+  // Toggle: click again to deselect
+  if (addState.category === catId) {
+    addState.category = null;
+    document.querySelectorAll('#cat-grid .cat-chip').forEach(function(chip) {
+      chip.classList.remove('selected');
+    });
+    return;
+  }
+  addState.category = catId;
+  var chips = document.querySelectorAll('#cat-grid .cat-chip');
+  chips.forEach(function(chip) {
+    chip.classList.remove('selected');
+    if (chip.dataset.cat === catId) chip.classList.add('selected');
+  });
+}
+
+function selectPayment(pmId) {
+  // Toggle: click again to deselect
+  if (addState.paymentMethod === pmId) {
+    addState.paymentMethod = null;
+    document.querySelectorAll('#payment-methods .tag').forEach(function(t) {
+      t.classList.remove('selected');
+    });
+    return;
+  }
+  addState.paymentMethod = pmId;
+  var tags = document.querySelectorAll('#payment-methods .tag');
+  tags.forEach(function(t) {
+    t.classList.remove('selected');
+    if (t.dataset.pm === pmId) t.classList.add('selected');
+  });
+}
+
+function toggleCurrency() {
+  if (addState.currency === 'AUD') {
+    addState.currency = 'CNY';
+  } else {
+    addState.currency = 'AUD';
+  }
+  var label = document.getElementById('currency-label');
+  var symbol = document.getElementById('currency-symbol');
+  var toggleBtn = document.querySelector('[onclick*="toggleCurrency"]');
+  if (addState.currency === 'CNY') {
+    if (label) label.textContent = '金额 (Amount) · CNY ¥';
+    if (symbol) symbol.textContent = '¥';
+    if (toggleBtn) toggleBtn.innerHTML = '🔄 切换 AUD';
+  } else {
+    if (label) label.textContent = '金额 (Amount) · AUD $';
+    if (symbol) symbol.textContent = '$';
+    if (toggleBtn) toggleBtn.innerHTML = '🔄 切换 CNY';
+  }
+}
+
+function saveExchangeRate() {
+  var input = document.getElementById('exchange-rate-input');
+  if (!input) return;
+  var rate = parseFloat(input.value);
+  if (isNaN(rate) || rate <= 0) {
+    showToast('请输入有效汇率 (Enter a valid rate)');
+    return;
+  }
+  Settings.saveExchangeRate(rate);
+  showToast('✅ 汇率已保存 (Rate Saved): 1 AUD = ' + rate + ' CNY');
+  // Refresh dashboard if visible
+  if (document.getElementById('page-dashboard').classList.contains('active')) {
+    renderDashboard();
+  }
+}
+
+function onImagePicked(input) {
+  var file = input.files[0];
+  if (!file) return;
+  compressImage(file).then(function(result) {
+    var imgId = uid();
+    addState.pendingImages.push({ id: imgId, blob: result.blob, width: result.width, height: result.height, sizeBytes: result.sizeBytes, fileName: file.name });
+    renderPendingThumbnails();
+  }).catch(function(err) {
+    showToast('❌ 图片处理失败 (Image failed): ' + err.message);
+  });
+  input.value = ''; // Allow re-selecting same file
+}
+
+function removePendingImage(imgId) {
+  addState.pendingImages = addState.pendingImages.filter(function(img) { return img.id !== imgId; });
+  renderPendingThumbnails();
+}
+
+function renderPendingThumbnails() {
+  var container = document.getElementById('pending-images');
+  if (!container) return;
+  var html = '';
+  addState.pendingImages.forEach(function(img) {
+    var url = URL.createObjectURL(img.blob);
+    html += '<div style="position:relative;flex-shrink:0;width:60px;height:60px;border-radius:6px;overflow:hidden;border:1px solid var(--border);">';
+    html += '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onclick="App.viewFullscreenImage(\'' + img.id + '\')">';
+    html += '<span onclick="App.removePendingImage(\'' + img.id + '\')" style="position:absolute;top:1px;right:3px;font-size:14px;color:#c44;cursor:pointer;line-height:1;">✕</span>';
+    html += '</div>';
+  });
+  html += '<div style="font-size:9px;color:var(--text-muted);flex-shrink:0;display:flex;align-items:center;">' +
+    (addState.pendingImages.length > 0 ? addState.pendingImages.length + ' 张 (pics) · ' + formatBytes(addState.pendingImages.reduce(function(s,i){return s+i.sizeBytes;},0)) : '') +
+    '</div>';
+  container.innerHTML = html;
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function viewFullscreenImage(pendingId) {
+  var img = addState.pendingImages.find(function(p) { return p.id === pendingId; });
+  if (!img) return;
+  var url = URL.createObjectURL(img.blob);
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:300;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = function() { overlay.remove(); };
+  var imgEl = document.createElement('img');
+  imgEl.src = url;
+  imgEl.style.cssText = 'max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;';
+  overlay.appendChild(imgEl);
+  document.body.appendChild(overlay);
+}
+
+function recordExpense() {
+  var amountStr = addState.amount;
+  if (!amountStr || isNaN(parseFloat(amountStr)) || parseFloat(amountStr) <= 0) {
+    showToast('请输入有效金额 (Enter a valid amount)'); return;
+  }
+  if (!addState.category) {
+    showToast('请选择分类 (Select a category)'); return;
+  }
+
+  var dollars = parseFloat(amountStr);
+  var cents = Math.round(dollars * 100);
+
+  var expenseId = uid();
+  var record = {
+    id: expenseId,
+    amount: addState.category === 'income' ? -cents : cents,
+    category: addState.category,
+    currency: addState.currency,
+    note: addState.note || null,
+    date: addState.date,
+    isTaxDeductible: addState.isTaxDeductible,
+    paymentMethod: addState.category === 'income' ? 'transfer' : addState.paymentMethod,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+
+  DB.addExpense(record).then(function() {
+    // Save pending images
+    var imgPromises = addState.pendingImages.map(function(img) {
+      return DB.addAttachment({
+        id: img.id,
+        expenseId: expenseId,
+        fileName: img.fileName,
+        blob: img.blob,
+        width: img.width,
+        height: img.height,
+        sizeBytes: img.sizeBytes,
+        createdAt: Date.now()
+      });
+    });
+    return Promise.all(imgPromises);
+  }).then(function() {
+    var cat = categoryById(addState.category);
+    var imgCount = addState.pendingImages.length > 0 ? ' 📷×' + addState.pendingImages.length : '';
+    showToast('✅ 已记录 (Recorded): ' + cat.icon + ' ' + formatAmount(cents, addState.currency) + imgCount);
+    // Reset form
+    addState.amount = '';
+    addState.category = null;
+    addState.note = '';
+    addState.isTaxDeductible = false;
+    addState.currency = 'AUD';
+    addState.pendingImages = [];
+    renderAddEntry();
+    document.getElementById('amount-input').focus();
+  }).catch(function(err) {
+    showToast('❌ 记录失败 (Failed): ' + err.message);
+  });
+}
+
+/* ================================================================
+   Transactions Page
+   ================================================================ */
+var txnFilter = { month: currentMonthStr(), category: null, search: '' };
+
+function renderTransactions() {
+  var html = '';
+
+  // Search bar
+  html += '<div class="search-bar">';
+  html += '<input class="input" id="txn-search" type="text" placeholder="搜索备注或分类 (Search)..." value="' + escHtml(txnFilter.search) + '" oninput="App.onTxnSearch(this.value)">';
+  html += '<button class="btn btn-small btn-secondary" onclick="App.showExportModal()">💾 导出 (Export)</button>';
+  html += '</div>';
+
+  // Category filter
+  html += '<div class="filter-bar" id="txn-filter-bar">';
+  html += '<span class="tag' + (!txnFilter.category ? ' selected' : '') + '" onclick="App.onTxnFilter(null)">全部 (All)</span>';
+  CATEGORIES.forEach(function(cat) {
+    html += '<span class="tag' + (txnFilter.category === cat.id ? ' selected' : '') + '" onclick="App.onTxnFilter(\'' + cat.id + '\')">' + cat.icon + ' ' + cat.zh + '</span>';
+  });
+  html += '</div>';
+
+  // Month selector
+  html += '<div class="month-nav">';
+  html += '<button onclick="App.txnPrevMonth()">◀</button>';
+  html += '<span class="month-label">' + getMonthLabel(txnFilter.month) + '</span>';
+  html += '<button onclick="App.txnNextMonth()">▶</button>';
+  html += '</div>';
+
+  // List container
+  html += '<div id="txn-list"></div>';
+
+  document.getElementById('page-transactions').innerHTML = html;
+
+  // Load data
+  loadTransactions();
+}
+
+function loadTransactions() {
+  DB.getExpenses({ month: txnFilter.month }).then(function(expenses) {
+    var search = txnFilter.search.toLowerCase();
+    var catFilter = txnFilter.category;
+
+    var filtered = expenses.filter(function(e) {
+      if (catFilter && e.category !== catFilter) return false;
+      if (search) {
+        var cat = categoryById(e.category);
+        var matchCat = cat && (cat.zh.includes(search) || cat.en.toLowerCase().includes(search));
+        var matchNote = e.note && e.note.toLowerCase().includes(search);
+        if (!matchCat && !matchNote) return false;
+      }
+      return true;
+    });
+
+    var listEl = document.getElementById('txn-list');
+    if (!listEl) return;
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无记录 (No records)<br><span style="font-size:10px;">去记账页面添加一笔吧</span></div></div>';
+      return;
+    }
+
+    // Group by date
+    var groups = {};
+    filtered.forEach(function(e) {
+      if (!groups[e.date]) groups[e.date] = [];
+      groups[e.date].push(e);
+    });
+
+    var html = '';
+    var rate = (Settings.get() && Settings.get().exchangeRate) ? Settings.get().exchangeRate : 4.7;
+    var dates = Object.keys(groups).sort().reverse();
+    dates.forEach(function(date) {
+      var items = groups[date];
+      var audDay = 0, cnyDay = 0;
+      items.forEach(function(e) {
+        if (e.category === 'income') return; // skip income in daily total
+        if (e.currency === 'CNY') cnyDay += e.amount;
+        else audDay += e.amount;
+      });
+      var totalDay = audDay + Math.round(cnyDay / rate);
+      var totalLabel = formatAmount(totalDay, 'AUD');
+      if (cnyDay > 0 && audDay > 0) {
+        totalLabel += ' (A$' + (audDay/100).toFixed(2) + ' + ¥' + (cnyDay/100).toFixed(2) + ')';
+      } else if (cnyDay > 0) {
+        totalLabel += ' (¥' + (cnyDay/100).toFixed(2) + ')';
+      }
+
+      html += '<div class="txn-month-header">' + date + ' · 日支出 (Daily): ' + totalLabel + '</div>';
+
+      items.forEach(function(e) {
+        var cat = categoryById(e.category);
+        var pm = paymentById(e.paymentMethod);
+        var isIncome = e.category === 'income';
+        var icon = cat ? cat.icon : '📌';
+        var name = cat ? cat.zh + ' (' + cat.en + ')' : '未知 (Unknown)';
+        var borderColor = cat ? cat.color : '#b0b0b0';
+        var noteDisplay = e.note || (cat ? cat.zh : '');
+        var pmDisplay = pm ? pm.zh : '';
+
+        html += '<div class="txn-item" style="border-left-color:' + borderColor + ';" onclick="App.editExpense(\'' + e.id + '\')">';
+        html += '<span class="txn-icon">' + icon + '</span>';
+        html += '<div class="txn-info">';
+        html += '<div class="txn-title">' + escHtml(noteDisplay) + '</div>';
+        html += '<div class="txn-meta">' + (cat ? cat.zh + ' (' + cat.en + ')' : '') + ' · ' + pmDisplay + (e.isTaxDeductible ? ' · 🏷️' : '') + '</div>';
+        html += '</div>';
+        html += '<div class="txn-amount ' + (isIncome ? 'income' : 'expense') + '">' + (isIncome ? '+' : '-') + formatAmount(Math.abs(e.amount), e.currency || 'AUD') + '</div>';
+        html += '</div>';
+      });
+    });
+
+    listEl.innerHTML = html;
+  });
+}
+
+function onTxnSearch(val) {
+  txnFilter.search = val;
+  loadTransactions();
+}
+
+function onTxnFilter(catId) {
+  txnFilter.category = catId;
+  var tags = document.querySelectorAll('#txn-filter-bar .tag');
+  tags.forEach(function(t) {
+    t.classList.remove('selected');
+  });
+  loadTransactions();
+}
+
+function txnPrevMonth() {
+  var parts = txnFilter.month.split('-');
+  var y = parseInt(parts[0]), m = parseInt(parts[1]);
+  if (m === 1) { y--; m = 12; } else { m--; }
+  txnFilter.month = y + '-' + String(m).padStart(2,'0');
+  renderTransactions();
+}
+
+function txnNextMonth() {
+  var parts = txnFilter.month.split('-');
+  var y = parseInt(parts[0]), m = parseInt(parts[1]);
+  if (m === 12) { y++; m = 1; } else { m++; }
+  txnFilter.month = y + '-' + String(m).padStart(2,'0');
+  renderTransactions();
+}
+
+function editExpense(id) {
+  Promise.all([DB.getAllExpenses(), DB.getAttachments(id)]).then(function(results) {
+    var all = results[0];
+    var attachments = results[1];
+    var record = all.find(function(e) { return e.id === id; });
+    if (!record) return showToast('记录不存在 (Record not found)');
+
+    var cat = categoryById(record.category);
+    var pm = paymentById(record.paymentMethod);
+
+    var content = '<div style="display:flex;flex-direction:column;gap:12px;">';
+    content += '<div><strong>金额 (Amount):</strong> ' + formatAmount(Math.abs(record.amount), record.currency || 'AUD') + '</div>';
+    content += '<div><strong>分类 (Category):</strong> ' + (cat ? cat.icon + ' ' + cat.zh + ' (' + cat.en + ')' : record.category) + '</div>';
+    if (record.note) content += '<div><strong>备注 (Note):</strong> ' + escHtml(record.note) + '</div>';
+    content += '<div><strong>日期 (Date):</strong> ' + record.date + '</div>';
+    content += '<div><strong>支付方式 (Payment):</strong> ' + (pm ? pm.zh + ' (' + pm.en + ')' : record.paymentMethod) + '</div>';
+    content += '<div><strong>退税 (Tax):</strong> ' + (record.isTaxDeductible ? '是 (Yes) 🏷️' : '否 (No)') + '</div>';
+
+    // Show attachments
+    if (attachments.length > 0) {
+      content += '<div style="font-size:11px;color:var(--text-secondary);">📷 凭证 (Receipts) · ' + attachments.length + ' 张</div>';
+      content += '<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">';
+      attachments.forEach(function(att) {
+        content += '<div style="position:relative;flex-shrink:0;width:80px;height:80px;border-radius:6px;overflow:hidden;border:1px solid var(--border);cursor:pointer;" onclick="App.viewAttachmentImage(\'' + att.id + '\')">';
+        content += '<img src="' + URL.createObjectURL(att.blob) + '" style="width:100%;height:100%;object-fit:cover;">';
+        content += '<span style="position:absolute;bottom:1px;right:3px;font-size:9px;color:#fff;background:rgba(0,0,0,0.5);padding:0 4px;border-radius:3px;">' + formatBytes(att.sizeBytes) + '</span>';
+        content += '</div>';
+      });
+      content += '</div>';
+    }
+
+    // Add more photos button
+    content += '<input type="file" id="attach-picker-' + id + '" accept="image/*" style="display:none;" onchange="App.attachToExpense(this, \'' + id + '\')">';
+    content += '<button class="btn btn-small btn-secondary" onclick="document.getElementById(\'attach-picker-' + id + '\').click()">📷 添加凭证 (Add Receipt)</button>';
+
+    content += '<div style="display:flex;gap:8px;margin-top:4px;">';
+    content += '<button class="btn btn-small btn-secondary" onclick="App.deleteExpense(\'' + id + '\')">🗑️ 删除 (Delete)</button>';
+    content += '</div>';
+    content += '</div>';
+
+    showModal('查看记录 (View Record)', content);
+  });
+}
+
+function attachToExpense(input, expenseId) {
+  var file = input.files[0];
+  if (!file) return;
+  compressImage(file).then(function(result) {
+    return DB.addAttachment({
+      id: uid(),
+      expenseId: expenseId,
+      fileName: file.name,
+      blob: result.blob,
+      width: result.width,
+      height: result.height,
+      sizeBytes: result.sizeBytes,
+      createdAt: Date.now()
+    });
+  }).then(function() {
+    showToast('✅ 凭证已添加 (Receipt Added)');
+    // Refresh modal
+    var modal = document.querySelector('.modal-overlay');
+    if (modal) modal.remove();
+    editExpense(expenseId);
+  }).catch(function(err) {
+    showToast('❌ 添加失败 (Failed): ' + err.message);
+  });
+  input.value = '';
+}
+
+function viewAttachmentImage(attId) {
+  DB.getAllAttachments().then(function(all) {
+    var att = all.find(function(a) { return a.id === attId; });
+    if (!att) return;
+    var url = URL.createObjectURL(att.blob);
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:300;display:flex;align-items:center;justify-content:center;';
+    overlay.onclick = function() { overlay.remove(); };
+    var img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;';
+    overlay.appendChild(img);
+    // Delete button
+    var delBtn = document.createElement('button');
+    delBtn.textContent = '🗑️ 删除 (Delete)';
+    delBtn.style.cssText = 'position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:#c44;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--font);';
+    delBtn.onclick = function(e) {
+      e.stopPropagation();
+      if (confirm('删除这张凭证？(Delete this receipt?)')) {
+        DB.deleteAttachment(attId).then(function() {
+          overlay.remove();
+          showToast('🗑️ 凭证已删除 (Receipt Deleted)');
+        });
+      }
+    };
+    overlay.appendChild(delBtn);
+    document.body.appendChild(overlay);
+  });
+}
+
+function deleteExpense(id) {
+  if (!confirm('确定删除这条记录及凭证照片？(Delete this record and receipts?)')) return;
+  // Delete attachments first
+  DB.getAttachments(id).then(function(atts) {
+    return Promise.all(atts.map(function(a) { return DB.deleteAttachment(a.id); }));
+  }).then(function() {
+    return DB.deleteExpense(id);
+  }).then(function() {
+    document.querySelector('.modal-overlay').remove();
+    showToast('🗑️ 已删除 (Deleted)');
+    loadTransactions();
+  });
+}
+
+/* ================================================================
+   Vault Page
+   ================================================================ */
+var vaultState = { pin: '', mode: 'unlock', busy: false }; // unlock | setup | list | reverify
+
+function renderVault() {
+  if (!Crypto.isAvailable()) {
+    Vault.lock();
+    vaultState.pin = '';
+    vaultState.busy = false;
+    renderVaultUnavailable();
+    return;
+  }
+
+  Vault.lock();
+  vaultState.pin = '';
+  vaultState.busy = false;
+  vaultState.mode = Settings.hasPin() ? 'unlock' : 'setup';
+
+  if (vaultState.mode === 'setup') {
+    renderVaultSetup();
+  } else {
+    renderVaultUnlock();
+  }
+}
+
+function renderVaultUnavailable() {
+  document.getElementById('page-vault').innerHTML =
+    '<div class="text-center" style="padding:28px 0 18px;">' +
+    '<div style="font-size:40px;margin-bottom:12px;">🔐</div>' +
+    '<div style="font-size:16px;font-weight:650;color:var(--text);margin-bottom:4px;">当前打开方式不安全</div>' +
+    '<div style="font-size:11px;color:var(--text-secondary);">Secure encryption is unavailable</div>' +
+    '</div>' +
+    '<div class="vault-security-note danger">' +
+    '<strong>为了保护银行卡密码、TFN 等敏感信息，保险库不会在当前地址下启用。</strong><br>' +
+    escHtml(Crypto.unavailableReason()) + '<br>' +
+    '你现在用手机访问局域网 HTTP 地址时，浏览器通常会禁用 Web Crypto，所以 PIN 会设置失败或反复要求重新设置。' +
+    '</div>' +
+    '<div class="vault-security-note">' +
+    '安全使用方式：用 HTTPS 部署、用 localhost 开发测试，或后续打包成真正的手机 App。不要在普通 HTTP 页面里保存银行卡密码或税号。' +
+    '</div>';
+}
+
+function renderVaultSetup() {
+  vaultState.pin = '';
+  vaultState.busy = false;
+  document.getElementById('page-vault').innerHTML =
+    '<div class="text-center" style="padding:30px 0;">' +
+    '<div style="font-size:40px;margin-bottom:12px;">🔐</div>' +
+    '<div style="font-size:15px;color:var(--text);margin-bottom:4px;">设置保险库 PIN 码</div>' +
+    '<div style="font-size:10px;color:var(--text-secondary);">Set Vault PIN (6 Digits)</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">此 PIN 将用于加密你的敏感信息</div>' +
+    '</div>' +
+    '<div class="vault-security-note">加密仅在本机浏览器内完成；PIN 不会写进明文文件，保险库数据使用 AES-256-GCM 加密。</div>' +
+    '<div class="pin-display" id="pin-display">' +
+    '<div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>' +
+    '<div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>' +
+    '</div>' +
+    '<div id="pin-msg" style="text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:12px;">输入 6 位 PIN (Enter 6-digit PIN)</div>' +
+    '<div class="pin-pad">' + buildPinPad() + '</div>';
+}
+
+function renderVaultUnlock() {
+  vaultState.pin = '';
+  vaultState.busy = false;
+  document.getElementById('page-vault').innerHTML =
+    '<div class="text-center" style="padding:30px 0;">' +
+    '<div style="font-size:40px;margin-bottom:12px;">🔐</div>' +
+    '<div style="font-size:15px;color:var(--text);margin-bottom:4px;">输入 PIN 解锁保险库</div>' +
+    '<div style="font-size:10px;color:var(--text-secondary);">Enter PIN to Unlock Vault</div>' +
+    '</div>' +
+    '<div class="pin-display" id="pin-display">' +
+    '<div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>' +
+    '<div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>' +
+    '</div>' +
+    '<div id="pin-msg" style="text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:12px;"></div>' +
+    '<div class="pin-pad">' + buildPinPad() + '</div>' +
+    '<div class="text-center mt-16"><button class="btn btn-small btn-secondary" onclick="App.resetVault()">🔄 重置保险库 (Reset Vault)</button></div>';
+}
+
+function buildPinPad() {
+  var keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  return keys.map(function(k) {
+    if (k === '') return '<div></div>';
+    if (k === '⌫') return '<div class="pin-key pin-del" onclick="App.pinKey(\'del\')">⌫</div>';
+    return '<div class="pin-key" onclick="App.pinKey(\'' + k + '\')">' + k + '</div>';
+  }).join('');
+}
+
+function pinKey(key) {
+  if (vaultState.busy) return;
+  if (key === 'del') {
+    vaultState.pin = vaultState.pin.slice(0, -1);
+  } else if (/^\d$/.test(key) && vaultState.pin.length < 6) {
+    vaultState.pin += key;
+  }
+
+  // Update dots
+  var dots = document.querySelectorAll('#pin-display .pin-dot');
+  dots.forEach(function(d, i) {
+    if (i < vaultState.pin.length) d.classList.add('filled');
+    else d.classList.remove('filled');
+  });
+
+  if (vaultState.pin.length === 6) {
+    handlePinComplete();
+  }
+}
+
+var vaultSetupFirstPin = null;
+
+function handlePinComplete() {
+  if (vaultState.busy) return;
+  var pin = vaultState.pin;
+
+  if (vaultState.mode === 'setup') {
+    // First entry — confirm
+    if (!vaultSetupFirstPin) {
+      vaultSetupFirstPin = pin;
+      vaultState.pin = '';
+      var dots = document.querySelectorAll('#pin-display .pin-dot');
+      dots.forEach(function(d) { d.classList.remove('filled'); });
+      document.getElementById('pin-msg').textContent = '再次输入确认 (Re-enter to Confirm)';
+    } else {
+      // Second entry — verify match
+      if (pin !== vaultSetupFirstPin) {
+        vaultState.pin = '';
+        var dots2 = document.querySelectorAll('#pin-display .pin-dot');
+        dots2.forEach(function(d) { d.classList.remove('filled'); });
+        document.getElementById('pin-msg').textContent = '❌ PIN 不匹配，请重试 (Mismatch, Retry)';
+        vaultSetupFirstPin = null;
+        return;
+      }
+      // Show processing feedback
+      vaultState.busy = true;
+      document.getElementById('pin-msg').textContent = '⏳ 正在加密... (Encrypting...)';
+      Settings.setPin(pin).then(function(key) {
+        vaultSetupFirstPin = null;
+        Vault.setUnlockedKey(key);
+        showToast('✅ 保险库 PIN 已设置 (Vault PIN Set)');
+        vaultState.mode = 'list';
+        vaultState.busy = false;
+        showVaultList();
+      }).catch(function(err) {
+        console.error('PIN setup error:', err);
+        document.getElementById('pin-msg').textContent = '❌ 加密失败: ' + (err.message || '未知错误 (Unknown error)');
+        vaultState.pin = '';
+        vaultState.busy = false;
+        vaultSetupFirstPin = null;
+        var dots = document.querySelectorAll('#pin-display .pin-dot');
+        dots.forEach(function(d) { d.classList.remove('filled'); });
+      });
+    }
+  } else if (vaultState.mode === 'unlock') {
+    vaultState.busy = true;
+    document.getElementById('pin-msg').textContent = '⏳ 验证中... (Verifying...)';
+    Vault.unlock(pin).then(function(ok) {
+      if (ok) {
+        vaultState.mode = 'list';
+        vaultState.busy = false;
+        showVaultList();
+      } else {
+        vaultState.pin = '';
+        vaultState.busy = false;
+        var dots3 = document.querySelectorAll('#pin-display .pin-dot');
+        dots3.forEach(function(d) { d.classList.remove('filled'); });
+        document.getElementById('pin-msg').textContent = '❌ PIN 错误 (Incorrect PIN)';
+      }
+    }).catch(function(err) {
+      console.error('Unlock error:', err);
+      document.getElementById('pin-msg').textContent = '❌ 验证失败 (Verification failed)';
+      vaultState.pin = '';
+      vaultState.busy = false;
+      var dots4 = document.querySelectorAll('#pin-display .pin-dot');
+      dots4.forEach(function(d) { d.classList.remove('filled'); });
+    });
+  } else if (vaultState.mode === 'reverify') {
+    vaultState.busy = true;
+    Vault.unlock(pin).then(function(ok) {
+      if (ok) {
+        vaultState.mode = 'list';
+        vaultState.busy = false;
+        // User was trying to view a specific item — show it
+        if (vaultState._pendingViewId) {
+          var vid = vaultState._pendingViewId;
+          delete vaultState._pendingViewId;
+          viewVaultItem(vid);
+        } else {
+          showVaultList();
+        }
+      } else {
+        vaultState.pin = '';
+        vaultState.busy = false;
+        var dots4 = document.querySelectorAll('#pin-display .pin-dot');
+        dots4.forEach(function(d) { d.classList.remove('filled'); });
+        document.getElementById('pin-msg').textContent = '❌ PIN 错误 (Incorrect PIN)';
+      }
+    }).catch(function(err) {
+      console.error('Reverify error:', err);
+      vaultState.pin = '';
+      vaultState.busy = false;
+      var dots5 = document.querySelectorAll('#pin-display .pin-dot');
+      dots5.forEach(function(d) { d.classList.remove('filled'); });
+      document.getElementById('pin-msg').textContent = '❌ 验证失败 (Verification failed)';
+    });
+  }
+}
+
+function showVaultList() {
+  Vault.getAllDecrypted().then(function(records) {
+    var html = '';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+    html += '<span style="font-size:12px;color:var(--text-secondary);">🔑 敏感信息 (Sensitive Records) · ' + records.length + ' 条</span>';
+    html += '<button class="btn btn-small btn-primary" onclick="App.showAddVaultModal()">+ 新增 (Add)</button>';
+    html += '</div>';
+
+    if (records.length === 0) {
+      html += '<div class="empty-state"><div class="empty-icon">🔓</div><div class="empty-text">保险库为空 (Vault is empty)<br><span style="font-size:10px;">点击"新增"添加银行卡、税号等</span></div></div>';
+    } else {
+      records.forEach(function(r) {
+        var vt = vaultTypeById(r.type);
+        html += '<div class="vault-item" onclick="App.viewVaultItem(\'' + r.id + '\')">';
+        html += '<span class="vault-icon">' + (vt ? vt.icon : '📌') + '</span>';
+        html += '<div class="vault-info">';
+        html += '<div class="vault-title">' + escHtml(r.title) + '</div>';
+        html += '<div class="vault-type">' + (vt ? vt.zh + ' (' + vt.en + ')' : r.type) + '</div>';
+        html += '</div>';
+        html += '<span class="vault-arrow">▶</span>';
+        html += '</div>';
+      });
+      html += '<div class="text-center mt-12"><button class="btn btn-small btn-secondary" onclick="App.exportVault()">📤 导出保险库 (Export Vault)</button></div>';
+    }
+
+    document.getElementById('page-vault').innerHTML = html;
+  });
+}
+
+function showAddVaultModal() {
+  vaultFieldCount = 1; // Reset field counter
+  var typeOptions = VAULT_TYPES.map(function(t) {
+    return '<span class="tag" data-vt="' + t.id + '" onclick="document.querySelectorAll(\'[data-vt]\').forEach(function(el){el.classList.remove(\'selected\')});this.classList.add(\'selected\');document.getElementById(\'new-vault-type\').value=\'' + t.id + '\'">' + t.icon + ' ' + t.zh + ' <span style="font-size:9px;color:var(--text-muted)">(' + t.en + ')</span></span>';
+  }).join('');
+
+  var content = '<div style="display:flex;flex-direction:column;gap:12px;">';
+  content += '<div style="font-size:11px;color:var(--text-secondary);">类型 (Type)</div>';
+  content += '<div class="entry-extras" id="vault-type-select">' + typeOptions + '</div>';
+  content += '<input type="hidden" id="new-vault-type" value="bank-card">';
+  content += '<div style="font-size:11px;color:var(--text-secondary);">标题 (Title)</div>';
+  content += '<input class="input" id="new-vault-title" type="text" placeholder="例如: CommBank 借记卡">';
+  content += '<div style="font-size:11px;color:var(--text-secondary);">字段 (Fields) — 点击 + 添加</div>';
+  content += '<div id="vault-fields"><div style="display:flex;gap:6px;margin-bottom:6px;"><input class="input" placeholder="字段名 (Label)" style="flex:1;" id="vf-label-0"><input class="input" placeholder="值 (Value)" style="flex:1;" id="vf-value-0"></div></div>';
+  content += '<button class="btn btn-small btn-secondary" onclick="App.addVaultField()">+ 添加字段 (Add Field)</button>';
+  content += '<button class="btn btn-primary btn-block mt-8" onclick="App.saveVaultRecord()">💾 加密保存 (Encrypt & Save)</button>';
+  content += '</div>';
+
+  showModal('新增保险库记录 (Add Vault Record)', content);
+
+  // Init type selection
+  setTimeout(function() {
+    var firstTag = document.querySelector('#vault-type-select .tag');
+    if (firstTag) firstTag.classList.add('selected');
+  }, 100);
+}
+
+var vaultFieldCount = 1;
+function addVaultField() {
+  var container = document.getElementById('vault-fields');
+  var div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;';
+  div.innerHTML = '<input class="input" placeholder="字段名 (Label)" style="flex:1;" id="vf-label-' + vaultFieldCount + '"><input class="input" placeholder="值 (Value)" style="flex:1;" id="vf-value-' + vaultFieldCount + '">';
+  container.appendChild(div);
+  vaultFieldCount++;
+}
+
+function saveVaultRecord() {
+  var title = document.getElementById('new-vault-title').value.trim();
+  if (!title) { showToast('请输入标题 (Enter a title)'); return; }
+
+  var type = document.getElementById('new-vault-type').value;
+  var fields = [];
+  for (var i = 0; i < vaultFieldCount; i++) {
+    var labelEl = document.getElementById('vf-label-' + i);
+    var valueEl = document.getElementById('vf-value-' + i);
+    if (labelEl && valueEl) {
+      var label = labelEl.value.trim();
+      var value = valueEl.value.trim();
+      if (label || value) fields.push({ label: label, value: value });
+    }
+  }
+
+  var record = {
+    id: uid(),
+    type: type,
+    title: title,
+    fields: fields,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+
+  Vault.add(record).then(function() {
+    document.querySelector('.modal-overlay').remove();
+    showToast('✅ 已加密保存 (Encrypted & Saved)');
+    showVaultList();
+    vaultFieldCount = 1;
+  }).catch(function(err) {
+    showToast('❌ 保存失败 (Failed): ' + err.message);
+  });
+}
+
+function viewVaultItem(id) {
+  Vault.getDecrypted(id).then(function(record) {
+    if (!record) { showToast('记录不存在'); return; }
+
+    var vt = vaultTypeById(record.type);
+    var content = '<div style="display:flex;flex-direction:column;gap:8px;">';
+    content += '<div style="text-align:center;font-size:32px;margin-bottom:8px;">' + (vt ? vt.icon : '📌') + '</div>';
+    content += '<div style="text-align:center;font-size:15px;color:var(--text);">' + escHtml(record.title) + '</div>';
+    content += '<div style="text-align:center;font-size:10px;color:var(--text-muted);margin-bottom:8px;">' + (vt ? vt.zh + ' (' + vt.en + ')' : '') + '</div>';
+    record.fields.forEach(function(f) {
+      content += '<div class="vault-detail-field"><span class="field-label">' + escHtml(f.label || '—') + '</span><span class="field-value">' + escHtml(f.value || '—') + '</span></div>';
+    });
+    content += '<div style="display:flex;gap:8px;margin-top:12px;">';
+    content += '<button class="btn btn-small btn-secondary" onclick="App.deleteVaultRecord(\'' + id + '\')">🗑️ 删除 (Delete)</button>';
+    content += '</div>';
+    content += '</div>';
+
+    showModal('保险库详情 (Vault Detail)', content);
+  });
+}
+
+function deleteVaultRecord(id) {
+  if (!confirm('确定删除？此操作不可恢复。(Delete? This cannot be undone.)')) return;
+  Vault.remove(id).then(function() {
+    document.querySelector('.modal-overlay').remove();
+    showToast('🗑️ 已删除 (Deleted)');
+    showVaultList();
+  });
+}
+
+function resetVault() {
+  if (!confirm('⚠️ 重置保险库将清除所有 PIN 和加密数据。确定？\n(Reset will clear all PIN and encrypted data. Confirm?)')) return;
+  localStorage.removeItem('ledger_settings');
+  localStorage.removeItem('ledger_vault_mirror');
+  DB.getAllVaultRecords().then(function(records) {
+    return Promise.all(records.map(function(r) { return DB.deleteVaultRecord(r.id); }));
+  }).then(function() {
+    Vault.lock();
+    vaultState.mode = 'setup';
+    renderVaultSetup();
+    showToast('🔄 保险库已重置 (Vault Reset)');
+  });
+}
+
+function exportVault() {
+  Promise.all([DB.getAllVaultRecords()]).then(function(results) {
+    var data = {
+      version: 2,
+      kind: 'encrypted-vault-backup',
+      exportedAt: new Date().toISOString(),
+      settings: Settings.get(),
+      vault: results[0]
+    };
+    var json = JSON.stringify(data, null, 2);
+    downloadFile('ledger-encrypted-vault-backup-' + todayStr() + '.json', json);
+    Settings.updateBackupDate();
+    showToast('📤 加密保险库已导出 (Encrypted Vault Exported)');
+  });
+}
+
+/* ================================================================
+   Backup / Export / Import
+   ================================================================ */
+function showBackupModal() {
+  var currentRate = (Settings.get() && Settings.get().exchangeRate) ? Settings.get().exchangeRate : 4.7;
+  var content = '<div style="display:flex;flex-direction:column;gap:12px;">';
+  content += '<div style="font-size:12px;color:var(--text-secondary);">💱 汇率设置 (Exchange Rate)</div>';
+  content += '<div style="display:flex;gap:8px;align-items:center;">';
+  content += '<span style="font-size:11px;color:var(--text);">1 AUD = </span>';
+  content += '<input class="input" id="exchange-rate-input" type="number" step="0.01" value="' + currentRate + '" style="width:80px;text-align:center;">';
+  content += '<span style="font-size:11px;color:var(--text);">CNY</span>';
+  content += '<button class="btn btn-small btn-primary" onclick="App.saveExchangeRate()">💾 保存 (Save)</button>';
+  content += '</div>';
+  content += '<div style="font-size:9px;color:var(--text-muted);">用于仪表盘澳元人民币换算 (For AUD/CNY conversion on dashboard)</div>';
+  content += '<hr style="border-color:var(--border-light);">';
+  content += '<div style="font-size:12px;color:var(--text-secondary);">📤 导出数据 (Export Data)</div>';
+  content += '<button class="btn btn-primary btn-block" onclick="App.exportAllData()">📤 导出全部数据 (Export All)</button>';
+  content += '<div style="font-size:10px;color:var(--text-muted);">包含账目、凭证照片、PIN 派生参数、保险库加密数据</div>';
+  content += '<div id="storage-stats" style="font-size:10px;color:var(--text-muted);text-align:center;"></div>';
+  content += '<hr style="border-color:var(--border-light);">';
+  content += '<div style="font-size:12px;color:var(--text-secondary);">📥 导入数据 (Import Data)</div>';
+  content += '<input type="file" id="import-file" accept=".json" style="display:none;" onchange="App.importAllData(this)">';
+  content += '<button class="btn btn-secondary btn-block" onclick="document.getElementById(\'import-file\').click()">📥 选择文件导入 (Choose File)</button>';
+  content += '<div style="font-size:10px;color:var(--text-muted);">导入将覆盖现有数据，请先导出备份</div>';
+  content += '<hr style="border-color:var(--border-light);">';
+  content += '<div style="font-size:12px;color:var(--text-secondary);">🔐 仅导出保险库 (Vault Only)</div>';
+  content += '<button class="btn btn-secondary btn-block" onclick="App.exportVaultFromBackup()">🔐 导出保险库 (Export Vault)</button>';
+  content += '<div style="font-size:10px;color:var(--text-muted);">保险库备份保持加密，恢复后仍需原 PIN 解锁</div>';
+  content += '</div>';
+
+  showModal('备份与恢复 (Backup & Restore)', content);
+
+  // Load storage stats async
+  DB.getAllAttachments().then(function(atts) {
+    var totalSize = atts.reduce(function(s,a){return s+(a.sizeBytes||0);},0);
+    var el = document.getElementById('storage-stats');
+    if (el) {
+      var statusClass = totalSize > 50*1024*1024 ? 'color:#c49474;' : 'color:var(--text-muted);';
+      el.innerHTML = '<span style="' + statusClass + '">📷 ' + atts.length + ' 张凭证 (Receipts) · 占用 (Storage): ' + formatBytes(totalSize) + '</span>';
+    }
+  });
+}
+
+function exportAllData() {
+  Promise.all([DB.getAllExpenses(), DB.getAllVaultRecords(), DB.getAllAttachments()]).then(function(results) {
+    // Convert attachment blobs to base64 for JSON export (each map returns a Promise)
+    var attPromises = results[2].map(function(att) {
+      return blobToBase64(att.blob).then(function(dataBase64) {
+        return {
+          id: att.id,
+          expenseId: att.expenseId,
+          fileName: att.fileName,
+          dataBase64: dataBase64,
+          width: att.width,
+          height: att.height,
+          sizeBytes: att.sizeBytes,
+          createdAt: att.createdAt
+        };
+      });
+    });
+    return Promise.all(attPromises).then(function(attData) {
+      var data = {
+        version: 3,
+        kind: 'full-encrypted-backup',
+        exportedAt: new Date().toISOString(),
+        settings: Settings.get(),
+        expenses: results[0],
+        vault: results[1],
+        attachments: attData
+      };
+      var json = JSON.stringify(data, null, 2);
+      downloadFile('ledger-full-backup-' + todayStr() + '.json', json);
+      Settings.updateBackupDate();
+      var totalAttSize = attData.reduce(function(s,a){return s+(a.sizeBytes||0);},0);
+      showToast('📤 备份完成 (Backup Complete) · ' + attData.length + ' 凭证 (Receipts) · ' + formatBytes(totalAttSize));
+      document.querySelector('.modal-overlay').remove();
+    });
+  });
+}
+
+function blobToBase64(blob) {
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = function() { resolve(reader.result); };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function base64ToBlob(base64) {
+  var parts = base64.split(',');
+  var mime = parts[0].match(/:(.*?);/)[1];
+  var bytes = atob(parts[1]);
+  var arr = new Uint8Array(bytes.length);
+  for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+function importAllData(input) {
+  var file = input.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.version || (!Array.isArray(data.expenses) && !Array.isArray(data.vault))) {
+        showToast('❌ 无效的备份文件 (Invalid backup file)');
+        return;
+      }
+    } catch(err) {
+      showToast('❌ 文件格式错误 (Invalid file format)');
+      return;
+    }
+
+    if (!confirm('⚠️ 导入将覆盖对应的本地数据。全量备份会覆盖账目和保险库；保险库备份只覆盖保险库。确定继续？\n(Import will overwrite matching local data. Continue?)')) return;
+
+    var data = JSON.parse(e.target.result);
+    var importsExpenses = Array.isArray(data.expenses);
+    var importsVault = Array.isArray(data.vault);
+    var importsAttachments = Array.isArray(data.attachments);
+    Promise.all([
+      // Clear existing data
+      importsExpenses ? DB.getAllExpenses().then(function(all) {
+        return Promise.all(all.map(function(e) { return DB.deleteExpense(e.id); }));
+      }) : Promise.resolve(),
+      importsVault ? DB.getAllVaultRecords().then(function(all) {
+        return Promise.all(all.map(function(r) { return DB.deleteVaultRecord(r.id); }));
+      }) : Promise.resolve(),
+      importsAttachments ? DB.getAllAttachments().then(function(all) {
+        return Promise.all(all.map(function(a) { return DB.deleteAttachment(a.id); }));
+      }) : Promise.resolve()
+    ]).then(function() {
+      // Import expenses
+      return Promise.all((data.expenses || []).map(function(e) {
+        return DB.addExpense(e).catch(function(err) {
+          return DB.updateExpense(e).catch(function() {});
+        });
+      }));
+    }).then(function() {
+      // Import vault
+      return Promise.all((data.vault || []).map(function(r) {
+        return DB.addVaultRecord(r).catch(function() {
+          return DB.updateVaultRecord(r).catch(function() {});
+        });
+      }));
+    }).then(function() {
+      // Import attachments
+      return Promise.all((data.attachments || []).map(function(att) {
+        var blob = att.dataBase64 ? base64ToBlob(att.dataBase64) : att.blob;
+        return DB.addAttachment({
+          id: att.id,
+          expenseId: att.expenseId,
+          fileName: att.fileName,
+          blob: blob,
+          width: att.width,
+          height: att.height,
+          sizeBytes: att.sizeBytes,
+          createdAt: att.createdAt
+        }).catch(function() {});
+      }));
+    }).then(function() {
+      if (data.settings) Settings.set(data.settings);
+      Vault._updateMirror();
+      document.querySelector('.modal-overlay').remove();
+      showToast('✅ 数据恢复完成 (Restore Complete)');
+      navigateTo('dashboard');
+    }).catch(function(err) {
+      showToast('❌ 导入失败 (Import Failed): ' + err.message);
+    });
+  };
+  reader.readAsText(file);
+}
+
+function exportVaultFromBackup() {
+  exportVault();
+  document.querySelector('.modal-overlay').remove();
+}
+
+function downloadFile(filename, content) {
+  var blob = new Blob([content], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ================================================================
+   Month Navigation (Dashboard)
+   ================================================================ */
+function prevMonth() {
+  var parts = dashMonth.split('-');
+  var y = parseInt(parts[0]), m = parseInt(parts[1]);
+  if (m === 1) { y--; m = 12; } else { m--; }
+  dashMonth = y + '-' + String(m).padStart(2,'0');
+  renderDashboard();
+}
+
+function nextMonth() {
+  var parts = dashMonth.split('-');
+  var y = parseInt(parts[0]), m = parseInt(parts[1]);
+  if (m === 12) { y++; m = 1; } else { m++; }
+  dashMonth = y + '-' + String(m).padStart(2,'0');
+  renderDashboard();
+}
+
+/* ================================================================
+   Helper
+   ================================================================ */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ================================================================
+   App Initialization
+   ================================================================ */
+var App = {
+  // Navigation
+  onAmountInput: onAmountInput,
+  selectCategory: selectCategory,
+  selectPayment: selectPayment,
+  toggleCurrency: toggleCurrency,
+  saveExchangeRate: saveExchangeRate,
+  onImagePicked: onImagePicked,
+  removePendingImage: removePendingImage,
+  viewFullscreenImage: viewFullscreenImage,
+  viewAttachmentImage: viewAttachmentImage,
+  attachToExpense: attachToExpense,
+  recordExpense: recordExpense,
+  showBackupModal: showBackupModal,
+  exportAllData: exportAllData,
+  importAllData: importAllData,
+  exportVaultFromBackup: exportVaultFromBackup,
+
+  // Transactions
+  onTxnSearch: onTxnSearch,
+  onTxnFilter: onTxnFilter,
+  txnPrevMonth: txnPrevMonth,
+  txnNextMonth: txnNextMonth,
+  editExpense: editExpense,
+  deleteExpense: deleteExpense,
+
+  // Vault
+  pinKey: pinKey,
+  resetVault: resetVault,
+  showAddVaultModal: showAddVaultModal,
+  addVaultField: addVaultField,
+  saveVaultRecord: saveVaultRecord,
+  viewVaultItem: viewVaultItem,
+  deleteVaultRecord: deleteVaultRecord,
+  exportVault: exportVault,
+
+  // Dashboard
+  prevMonth: prevMonth,
+  nextMonth: nextMonth,
+
+  // Export
+  showExportModal: function() { showBackupModal(); }
+};
+
+// Initialize
+function init() {
+  DB.open().then(function() {
+    // Request persistent storage to prevent eviction
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(function(granted) {
+        if (granted) console.log('Persistent storage granted');
+      }).catch(function(){});
+    }
+    // Restore vault mirror if needed
+    Vault.restoreFromMirror().then(function() {
+      // Set up navigation
+      document.querySelectorAll('#nav .nav-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          navigateTo(this.dataset.page);
+        });
+      });
+
+      // Initial render
+      renderDashboard();
+
+      // Update header subtitle
+      var now = new Date();
+      document.getElementById('header-subtitle').textContent =
+        now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日 · ' +
+        ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+    });
+  }).catch(function(err) {
+    console.error('DB init failed:', err);
+    document.getElementById('main').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">数据库初始化失败 (DB Init Failed)<br><span style="font-size:10px;">请刷新页面重试 (Please refresh)</span></div></div>';
+  });
+}
+
+// Run
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+// Expose to global scope for onclick handlers
+window.App = App;
+
+})();
+</script>
+</body>
+</html>
