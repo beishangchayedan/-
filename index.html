@@ -524,7 +524,7 @@ button { min-height: 40px; }
 <!-- ====== Service Worker Registration ====== -->
 <script>
 if ('serviceWorker' in navigator && window.isSecureContext) {
-  navigator.serviceWorker.register('./sw.js').catch(function(){});
+  navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function(){});
 }
 </script>
 
