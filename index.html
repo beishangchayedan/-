@@ -216,6 +216,69 @@ button { min-height: 40px; }
   line-height: 1.6; font-size: 13px; color: var(--text);
 }
 
+.metric-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px; margin-bottom: 16px;
+}
+.metric-item {
+  min-width: 0; padding: 11px 9px; background: var(--bg-card);
+  border: 1px solid var(--border-light); border-radius: var(--radius);
+}
+.metric-label { font-size: 9px; color: var(--text-muted); margin-bottom: 4px; }
+.metric-value { font-size: 16px; font-weight: 700; color: var(--text); overflow-wrap: anywhere; }
+.metric-sub { font-size: 8px; color: var(--text-muted); margin-top: 2px; }
+
+.analytics-panel {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+}
+.analytics-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin-bottom: 12px;
+}
+.analytics-title { font-size: 12px; font-weight: 650; color: var(--text); }
+.analytics-caption { font-size: 9px; color: var(--text-muted); text-align: right; }
+
+.daily-chart {
+  height: 132px; display: grid; grid-template-columns: repeat(var(--days), minmax(3px, 1fr));
+  align-items: end; gap: 3px; padding-top: 8px;
+}
+.daily-column {
+  height: 100%; min-width: 0; display: grid; grid-template-rows: 1fr 15px;
+  align-items: end; gap: 4px;
+}
+.daily-bar-track { height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.daily-bar {
+  width: 100%; min-height: 2px; background: var(--accent);
+  border-radius: 3px 3px 1px 1px; opacity: 0.85;
+}
+.daily-bar.zero { background: var(--border-light); opacity: 1; }
+.daily-day { font-size: 7px; line-height: 1; color: var(--text-muted); text-align: center; }
+
+.rank-list { display: flex; flex-direction: column; gap: 11px; }
+.rank-row { display: grid; grid-template-columns: minmax(92px, 38%) minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.rank-name { min-width: 0; font-size: 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-track { height: 7px; background: var(--border-light); border-radius: 999px; overflow: hidden; }
+.rank-fill { height: 100%; border-radius: 999px; }
+.rank-value { font-size: 10px; color: var(--text-secondary); text-align: right; }
+
+.payment-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.payment-stat { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 7px; font-size: 10px; }
+.payment-stat-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+.payment-stat-value { color: var(--text); font-weight: 650; }
+
+.recent-note-list { display: flex; flex-direction: column; }
+.recent-note-item {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 9px;
+  align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-light);
+}
+.recent-note-item:last-child { border-bottom: none; padding-bottom: 0; }
+.recent-note-icon { font-size: 17px; }
+.recent-note-text { min-width: 0; }
+.recent-note-title { font-size: 11px; color: var(--text); overflow-wrap: anywhere; }
+.recent-note-meta { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+.recent-note-amount { font-size: 11px; font-weight: 650; color: var(--text); text-align: right; }
+
 .dash-backup-warn {
   background: var(--warning-bg); border: 1px solid var(--warning-border);
   border-radius: var(--radius-sm); padding: 10px 14px;
@@ -267,6 +330,17 @@ button { min-height: 40px; }
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px; margin-bottom: 12px;
 }
+.category-group-bar {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.category-group-bar::-webkit-scrollbar { display: none; }
+.category-group-tab {
+  flex: 0 0 auto; min-height: 32px; padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--bg-card); color: var(--text-secondary); font-size: 10px;
+}
+.category-group-tab.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
 .cat-chip {
   display: flex; flex-direction: column; align-items: center;
   gap: 3px; min-width: 0; min-height: 70px; padding: 9px 4px; border-radius: var(--radius-sm);
@@ -284,6 +358,19 @@ button { min-height: 40px; }
 
 .entry-extras { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .entry-extras .tag { font-size: 10px; }
+.entry-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px; }
+.field-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; }
+.note-input { min-height: 68px; resize: vertical; line-height: 1.45; user-select: text; -webkit-user-select: text; }
+.payment-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+.payment-chip {
+  min-width: 0; min-height: 56px; padding: 7px 3px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text-secondary); font-size: 9px;
+}
+.payment-chip.selected { background: #e7f2ed; border-color: var(--accent); color: var(--accent); }
+.payment-chip-icon { font-size: 17px; line-height: 1; }
+.payment-chip-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ================================================================
    Transactions Page
@@ -303,7 +390,7 @@ button { min-height: 40px; }
 }
 .txn-item .txn-icon { font-size: 20px; flex-shrink: 0; }
 .txn-item .txn-info { flex: 1; min-width: 0; }
-.txn-item .txn-title { font-size: 13px; color: var(--text); }
+.txn-item .txn-title { font-size: 13px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
 .txn-item .txn-meta { font-size: 10px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .txn-item .txn-amount { font-size: 14px; font-weight: 650; flex-shrink: 0; text-align: right; }
 .txn-item .txn-amount.expense { color: var(--text); }
@@ -315,6 +402,8 @@ button { min-height: 40px; }
   -webkit-overflow-scrolling: touch;
 }
 .filter-bar::-webkit-scrollbar { display: none; }
+.txn-filter-row { margin-bottom: 10px; }
+.txn-filter-row .input { font-size: 12px; padding: 9px 11px; }
 
 .search-bar {
   display: flex; gap: 8px; margin-bottom: 10px;
@@ -524,7 +613,9 @@ button { min-height: 40px; }
 <!-- ====== Service Worker Registration ====== -->
 <script>
 if ('serviceWorker' in navigator && window.isSecureContext) {
-  navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function(){});
+  navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' })
+    .then(function(registration) { return registration.update(); })
+    .catch(function(){});
 }
 </script>
 
@@ -536,34 +627,76 @@ if ('serviceWorker' in navigator && window.isSecureContext) {
 /* ================================================================
    Constants — Australian Expense Categories
    ================================================================ */
+var CATEGORY_GROUPS = [
+  { id:'common',    zh:'常用',     en:'Common' },
+  { id:'food',      zh:'餐饮',     en:'Food' },
+  { id:'housing',   zh:'住房',     en:'Housing' },
+  { id:'transport', zh:'交通旅行', en:'Transport' },
+  { id:'study',     zh:'学习签证', en:'Study' },
+  { id:'health',    zh:'健康保险', en:'Health' },
+  { id:'lifestyle', zh:'生活娱乐', en:'Lifestyle' },
+  { id:'finance',   zh:'财务其他', en:'Finance' }
+];
+
+var COMMON_CATEGORY_IDS = [
+  'groceries', 'eating-out', 'rent', 'transport', 'flights', 'shopping',
+  'phone', 'tuition', 'insurance', 'income', 'other'
+];
+
 var CATEGORIES = [
-  { id:'groceries',    icon:'🥑', zh:'食品杂货',   en:'Groceries',     color:'#d4a574' },
-  { id:'eating-out',   icon:'☕', zh:'外出就餐',   en:'Eating Out',    color:'#c49474' },
-  { id:'rent',         icon:'🏠', zh:'房租',       en:'Rent',          color:'#8a9b8e' },
-  { id:'utilities',    icon:'💡', zh:'水电燃气',   en:'Utilities',     color:'#a89880' },
-  { id:'transport',    icon:'🚌', zh:'公共交通',   en:'Transport',     color:'#b89878' },
-  { id:'car',          icon:'🚗', zh:'汽车油费',   en:'Car & Fuel',    color:'#9c8c7c' },
-  { id:'phone',        icon:'📱', zh:'手机网络',   en:'Phone & Net',   color:'#a49888' },
-  { id:'health',       icon:'🏥', zh:'医疗健康',   en:'Health',        color:'#c4a8a0' },
-  { id:'education',    icon:'📚', zh:'学习用品',   en:'Education',     color:'#a89488' },
-  { id:'tuition',      icon:'🎓', zh:'学费',       en:'Tuition',       color:'#9b8a8a' },
-  { id:'shopping',     icon:'🛍️', zh:'购物',       en:'Shopping',      color:'#b8a494' },
-  { id:'entertainment',icon:'🎬', zh:'娱乐',       en:'Entertainment', color:'#b09890' },
-  { id:'fitness',      icon:'💪', zh:'健身',       en:'Fitness',       color:'#9ca890' },
-  { id:'insurance',    icon:'🛡️', zh:'保险',       en:'Insurance',     color:'#98a0a8' },
-  { id:'pharmacy',     icon:'💊', zh:'药房',       en:'Pharmacy',      color:'#aca498' },
-  { id:'travel',       icon:'✈️', zh:'旅行',       en:'Travel',        color:'#a0acb8' },
-  { id:'bank-fees',    icon:'🏦', zh:'银行费用',   en:'Bank Fees',     color:'#a49cb0' },
-  { id:'gifts',        icon:'🎁', zh:'礼物捐赠',   en:'Gifts',         color:'#bca0b0' },
-  { id:'income',       icon:'💰', zh:'收入',       en:'Income',        color:'#7a9b7e' },
-  { id:'other',        icon:'📦', zh:'其他',       en:'Other',         color:'#b0b0b0' }
+  { id:'groceries',      group:'food',      icon:'🛒', zh:'食品杂货',    en:'Groceries',       color:'#3f7d5b' },
+  { id:'eating-out',     group:'food',      icon:'🍽️', zh:'外出就餐',    en:'Eating Out',      color:'#bd6b45' },
+  { id:'coffee-snacks',  group:'food',      icon:'☕', zh:'咖啡零食',    en:'Coffee & Snacks',  color:'#9a6b45' },
+  { id:'delivery',       group:'food',      icon:'🛵', zh:'外卖配送',    en:'Food Delivery',    color:'#c78055' },
+
+  { id:'rent',           group:'housing',   icon:'🏠', zh:'房租',        en:'Rent',             color:'#46766a' },
+  { id:'housing-bond',   group:'housing',   icon:'🔑', zh:'租房押金',    en:'Rental Bond',      color:'#668e83' },
+  { id:'utilities',      group:'housing',   icon:'💡', zh:'水电燃气',    en:'Utilities',        color:'#c69a45' },
+  { id:'phone',          group:'housing',   icon:'📱', zh:'手机网络',    en:'Phone & Internet', color:'#5b7ea6' },
+  { id:'household',      group:'housing',   icon:'🧻', zh:'家居日用',    en:'Household',        color:'#7d8b72' },
+
+  { id:'transport',      group:'transport', icon:'🚌', zh:'公共交通',    en:'Public Transport', color:'#377ea5' },
+  { id:'rideshare',      group:'transport', icon:'🚕', zh:'打车网约车',  en:'Taxi & Rideshare', color:'#d0a13b' },
+  { id:'car',            group:'transport', icon:'🚗', zh:'汽车油费',    en:'Car & Fuel',       color:'#657386' },
+  { id:'parking-tolls',  group:'transport', icon:'🅿️', zh:'停车过路费',  en:'Parking & Tolls',  color:'#6f8196' },
+  { id:'flights',        group:'transport', icon:'✈️', zh:'机票',        en:'Flights',          color:'#527bb0' },
+  { id:'accommodation',  group:'transport', icon:'🏨', zh:'旅行住宿',    en:'Accommodation',    color:'#7d69a7' },
+  { id:'travel',         group:'transport', icon:'🧳', zh:'旅行活动',    en:'Travel Activities',color:'#8b72ae' },
+
+  { id:'tuition',        group:'study',     icon:'🎓', zh:'学费',        en:'Tuition',          color:'#6c629e' },
+  { id:'education',      group:'study',     icon:'📚', zh:'教材学习用品',en:'Books & Supplies', color:'#816fa1' },
+  { id:'visa',           group:'study',     icon:'🛂', zh:'签证移民',    en:'Visa & Immigration',color:'#536b8f' },
+  { id:'student-fees',   group:'study',     icon:'🏫', zh:'学校杂费',    en:'Student Fees',     color:'#7582a4' },
+  { id:'work-expenses',  group:'study',     icon:'💼', zh:'工作相关',    en:'Work Expenses',    color:'#5d7b74' },
+
+  { id:'health',         group:'health',    icon:'🏥', zh:'看诊医疗',    en:'Medical',          color:'#b15f63' },
+  { id:'pharmacy',       group:'health',    icon:'💊', zh:'药房药品',    en:'Pharmacy',         color:'#b97878' },
+  { id:'insurance',      group:'health',    icon:'🛡️', zh:'保险 / OSHC', en:'Insurance / OSHC',color:'#56889a' },
+  { id:'dental-optical', group:'health',    icon:'🦷', zh:'牙科眼科',    en:'Dental & Optical', color:'#6d9c9f' },
+  { id:'fitness',        group:'health',    icon:'🏋️', zh:'健身运动',    en:'Fitness',          color:'#528568' },
+
+  { id:'shopping',       group:'lifestyle', icon:'🛍️', zh:'购物服饰',    en:'Shopping',         color:'#aa6787' },
+  { id:'personal-care',  group:'lifestyle', icon:'🧴', zh:'个人护理',    en:'Personal Care',    color:'#b57c92' },
+  { id:'entertainment',  group:'lifestyle', icon:'🎬', zh:'娱乐社交',    en:'Entertainment',    color:'#8f6698' },
+  { id:'subscriptions',  group:'lifestyle', icon:'▶️', zh:'会员订阅',    en:'Subscriptions',    color:'#8a6c82' },
+  { id:'gifts',          group:'lifestyle', icon:'🎁', zh:'礼物捐赠',    en:'Gifts & Donations',color:'#bd7080' },
+
+  { id:'bank-fees',      group:'finance',   icon:'🏦', zh:'银行费用',    en:'Bank Fees',        color:'#60778b' },
+  { id:'tax',            group:'finance',   icon:'🧾', zh:'税务费用',    en:'Tax Expenses',     color:'#8b7158' },
+  { id:'income',         group:'finance',   icon:'💰', zh:'收入',        en:'Income',           color:'#3f7d5b' },
+  { id:'refund',         group:'finance',   icon:'↩️', zh:'退款返现',    en:'Refund & Cashback',color:'#5b8d72' },
+  { id:'other',          group:'finance',   icon:'📦', zh:'其他',        en:'Other',            color:'#7f8984' }
 ];
 
 var PAYMENT_METHODS = [
-  { id:'cash',     zh:'现金',     en:'Cash' },
-  { id:'debit',    zh:'借记卡',   en:'Debit Card' },
-  { id:'credit',   zh:'信用卡',   en:'Credit Card' },
-  { id:'transfer', zh:'转账',     en:'Transfer' }
+  { id:'cash',          icon:'💵', zh:'现金',       en:'Cash' },
+  { id:'debit',         icon:'💳', zh:'借记卡',     en:'Debit' },
+  { id:'credit',        icon:'💳', zh:'信用卡',     en:'Credit' },
+  { id:'transfer',      icon:'🏦', zh:'银行转账',   en:'Transfer' },
+  { id:'mobile-wallet', icon:'📱', zh:'手机钱包',   en:'Wallet' },
+  { id:'payid',         icon:'⚡', zh:'PayID',      en:'PayID' },
+  { id:'bpay',          icon:'🧾', zh:'BPAY',       en:'BPAY' },
+  { id:'travel-card',   icon:'🌏', zh:'旅行卡',     en:'Travel Card' }
 ];
 
 var VAULT_TYPES = [
@@ -1309,11 +1442,26 @@ function currentMonthStr() {
 }
 
 function categoryById(id) {
-  return CATEGORIES.find(function(c) { return c.id === id; });
+  return CATEGORIES.find(function(c) { return c.id === id; }) || {
+    id: id || 'unknown', icon: '📌', zh: '旧分类', en: 'Legacy Category', color: '#7f8984'
+  };
 }
 
 function paymentById(id) {
-  return PAYMENT_METHODS.find(function(p) { return p.id === id; });
+  return PAYMENT_METHODS.find(function(p) { return p.id === id; }) || {
+    id: id || 'unknown', icon: '•', zh: '未记录', en: 'Unknown'
+  };
+}
+
+function isIncomeCategory(id) {
+  return id === 'income' || id === 'refund';
+}
+
+function categoriesForGroup(groupId) {
+  if (groupId === 'common') {
+    return COMMON_CATEGORY_IDS.map(categoryById);
+  }
+  return CATEGORIES.filter(function(category) { return category.group === groupId; });
 }
 
 function vaultTypeById(id) {
@@ -1415,138 +1563,166 @@ function renderDashboard() {
   });
 }
 
-function renderDashboardData(month, expenses) {
-  var audTotal = 0, cnyTotal = 0;
-  var catTotals = {};
-  var lastMonthAud = 0, lastMonthCny = 0;
-  var rate = Settings.getExchangeRate();
+function getDaysInMonth(month) {
+  var parts = month.split('-');
+  return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10), 0).getDate();
+}
 
-  expenses.forEach(function(e) {
-    if (e.category === 'income') {
-      // Don't count income in spending total
-    } else {
-      if (e.currency === 'CNY') cnyTotal += e.amount;
-      else audTotal += e.amount;
-      catTotals[e.category] = (catTotals[e.category] || 0) + toAudCents(e.amount, e.currency, rate);
-    }
+function buildDailySeries(expenses, month, rate) {
+  var days = getDaysInMonth(month);
+  var totals = Array(days).fill(0);
+  expenses.forEach(function(record) {
+    if (isIncomeCategory(record.category)) return;
+    var day = parseInt(String(record.date || '').slice(8, 10), 10);
+    if (day >= 1 && day <= days) totals[day - 1] += toAudCents(record.amount, record.currency, rate);
+  });
+  return totals;
+}
+
+function renderDailyChart(series) {
+  var max = Math.max.apply(null, series.concat([0]));
+  var html = '<div class="daily-chart" style="--days:' + series.length + '">';
+  series.forEach(function(value, index) {
+    var day = index + 1;
+    var height = max > 0 ? Math.max(3, Math.round(value / max * 100)) : 2;
+    var label = day === 1 || day === series.length || day % 5 === 0 ? day : '';
+    html += '<div class="daily-column" title="' + day + '日 · ' + formatAmount(value, 'AUD') + '">' +
+      '<div class="daily-bar-track"><div class="daily-bar' + (value === 0 ? ' zero' : '') + '" style="height:' + height + '%"></div></div>' +
+      '<div class="daily-day">' + label + '</div></div>';
+  });
+  return html + '</div>';
+}
+
+function renderCategoryRanking(sortedCategories, total) {
+  if (!sortedCategories.length) return '<div class="empty-state" style="padding:18px 0"><div class="empty-text">本月暂无分类数据</div></div>';
+  var html = '<div class="rank-list">';
+  sortedCategories.slice(0, 6).forEach(function(entry) {
+    var category = categoryById(entry[0]);
+    var share = total > 0 ? Math.round(entry[1] / total * 100) : 0;
+    html += '<div class="rank-row">' +
+      '<div class="rank-name">' + category.icon + ' ' + escHtml(category.zh) + '</div>' +
+      '<div class="rank-track"><div class="rank-fill" style="width:' + share + '%;background:' + category.color + '"></div></div>' +
+      '<div class="rank-value">' + share + '% · ' + formatAmount(entry[1], 'AUD') + '</div>' +
+      '</div>';
+  });
+  return html + '</div>';
+}
+
+function renderPaymentAnalysis(expenses, rate) {
+  var totals = {};
+  expenses.forEach(function(record) {
+    if (isIncomeCategory(record.category)) return;
+    var method = record.paymentMethod || 'unknown';
+    totals[method] = (totals[method] || 0) + toAudCents(record.amount, record.currency, rate);
+  });
+  var entries = Object.entries(totals).sort(function(a, b) { return b[1] - a[1]; });
+  if (!entries.length) return '<div class="empty-state" style="padding:18px 0"><div class="empty-text">本月暂无支付数据</div></div>';
+  var html = '<div class="payment-breakdown">';
+  entries.forEach(function(entry) {
+    var method = paymentById(entry[0]);
+    html += '<div class="payment-stat"><span>' + method.icon + '</span>' +
+      '<span class="payment-stat-name">' + escHtml(method.zh) + '</span>' +
+      '<span class="payment-stat-value">' + formatAmount(entry[1], 'AUD') + '</span></div>';
+  });
+  return html + '</div>';
+}
+
+function renderRecentNotes(expenses) {
+  var records = expenses.filter(function(record) {
+    return record.note && String(record.note).trim();
+  }).sort(function(a, b) {
+    return String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0);
+  }).slice(0, 4);
+  if (!records.length) return '<div class="empty-state" style="padding:18px 0"><div class="empty-text">本月还没有备注</div></div>';
+  var html = '<div class="recent-note-list">';
+  records.forEach(function(record) {
+    var category = categoryById(record.category);
+    html += '<div class="recent-note-item">' +
+      '<span class="recent-note-icon">' + category.icon + '</span>' +
+      '<div class="recent-note-text"><div class="recent-note-title">' + escHtml(record.note) + '</div>' +
+      '<div class="recent-note-meta">' + escHtml(category.zh) + ' · ' + escHtml(record.date) + '</div></div>' +
+      '<div class="recent-note-amount">' + (isIncomeCategory(record.category) ? '+' : '-') + formatAmount(Math.abs(record.amount), record.currency || 'AUD') + '</div>' +
+      '</div>';
+  });
+  return html + '</div>';
+}
+
+function renderDashboardData(month, expenses) {
+  var rate = Settings.getExchangeRate();
+  var spending = expenses.filter(function(record) { return !isIncomeCategory(record.category); });
+  var income = expenses.filter(function(record) { return isIncomeCategory(record.category); });
+  var audTotal = 0, cnyTotal = 0, incomeTotal = 0;
+  var categoryTotals = {};
+
+  spending.forEach(function(record) {
+    if (record.currency === 'CNY') cnyTotal += record.amount;
+    else audTotal += record.amount;
+    categoryTotals[record.category] = (categoryTotals[record.category] || 0) + toAudCents(record.amount, record.currency, rate);
+  });
+  income.forEach(function(record) {
+    incomeTotal += Math.abs(toAudCents(record.amount, record.currency, rate));
   });
 
-  // Get last month for comparison
-  var parts = month.split('-');
-  var y = parseInt(parts[0]), m = parseInt(parts[1]);
-  if (m === 1) { y--; m = 12; } else { m--; }
-  var lastMonth = y + '-' + String(m).padStart(2,'0');
+  var combinedTotal = audTotal + Math.round(cnyTotal / rate);
+  var sortedCategories = Object.entries(categoryTotals).sort(function(a, b) { return b[1] - a[1]; });
+  var dailySeries = buildDailySeries(expenses, month, rate);
+  var elapsedDays = month === currentMonthStr() ? new Date().getDate() : dailySeries.length;
+  var dailyAverage = elapsedDays > 0 ? Math.round(combinedTotal / elapsedDays) : 0;
+  var activeSeries = dailySeries.slice(0, elapsedDays);
+  var noSpendDays = activeSeries.filter(function(value) { return value === 0; }).length;
+  var highestValue = Math.max.apply(null, activeSeries.concat([0]));
+  var highestDay = highestValue > 0 ? activeSeries.indexOf(highestValue) + 1 : null;
 
-  // Get exchange rate from settings (default ~4.7 CNY per AUD)
-  // Convert CNY to AUD-equivalent for combined total
-  var cnyEquivalent = Math.round(cnyTotal / rate);
-  var combinedTotal = audTotal + cnyEquivalent;
-  var isMultiCurrency = (audTotal > 0 && cnyTotal > 0);
+  var parts = month.split('-');
+  var year = parseInt(parts[0], 10), monthNumber = parseInt(parts[1], 10);
+  if (monthNumber === 1) { year--; monthNumber = 12; } else { monthNumber--; }
+  var lastMonth = year + '-' + String(monthNumber).padStart(2, '0');
 
   DB.getExpenses({ month: lastMonth }).then(function(lastExpenses) {
-    lastExpenses.forEach(function(e) {
-      if (e.category !== 'income') {
-        if (e.currency === 'CNY') lastMonthCny += e.amount;
-        else lastMonthAud += e.amount;
-      }
-    });
-    var lastCnyEquiv = Math.round(lastMonthCny / rate);
-    var lastCombined = lastMonthAud + lastCnyEquiv;
+    var lastCombined = lastExpenses.reduce(function(sum, record) {
+      if (isIncomeCategory(record.category)) return sum;
+      return sum + toAudCents(record.amount, record.currency, rate);
+    }, 0);
 
     var changeHtml = '';
     if (lastCombined > 0) {
-      var pct = Math.round((combinedTotal - lastCombined) / lastCombined * 100);
-      if (pct > 0) {
-        changeHtml = '<div class="change change-up">↑ ' + pct + '% 较上月 (vs last month)</div>';
-      } else if (pct < 0) {
-        changeHtml = '<div class="change change-down">↓ ' + Math.abs(pct) + '% 较上月 (vs last month)</div>';
-      } else {
-        changeHtml = '<div class="change" style="background:#f0ebe0;color:#8c7b6b;">持平 (No change)</div>';
-      }
+      var change = Math.round((combinedTotal - lastCombined) / lastCombined * 100);
+      if (change > 0) changeHtml = '<div class="change change-up">↑ ' + change + '% 较上月</div>';
+      else if (change < 0) changeHtml = '<div class="change change-down">↓ ' + Math.abs(change) + '% 较上月</div>';
+      else changeHtml = '<div class="change" style="background:var(--border-light);color:var(--text-secondary)">与上月持平</div>';
     }
-
-    // Sort categories by amount descending, exclude income
-    var sorted = Object.entries(catTotals).filter(function(e) { return e[0] !== 'income'; }).sort(function(a,b) { return b[1]-a[1]; });
-    var top3 = sorted.slice(0, 3);
-    var maxCat = top3.length > 0 ? top3[0][1] : 1;
-
-    var catHtml = '';
-    top3.forEach(function(entry) {
-      var cat = categoryById(entry[0]);
-      if (!cat) return;
-      var pct = Math.round(entry[1] / maxCat * 100);
-      catHtml += '<div class="dash-cat">' +
-        '<div class="cat-icon">' + cat.icon + '</div>' +
-        '<div class="cat-name">' + cat.zh + '</div>' +
-        '<div class="cat-name-en">' + cat.en + '</div>' +
-        '<div class="cat-amount">' + formatAmount(entry[1], 'AUD') + '</div>' +
-        '<div class="cat-bar"><div class="cat-bar-fill" style="width:' + pct + '%;background:' + cat.color + ';"></div></div>' +
-        '</div>';
-    });
-
-    // Weekly insight
-    var weekExpenses = expenses.filter(function(e) {
-      if (e.category === 'income') return false;
-      var d = new Date(e.date);
-      var now = new Date();
-      var weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
-      return d >= weekAgo;
-    });
-    var weekTotal = weekExpenses.reduce(function(s, e) { return s + toAudCents(e.amount, e.currency, rate); }, 0);
-
-    // Find top category this week
-    var weekCat = {};
-    weekExpenses.forEach(function(e) {
-      if (e.category !== 'income') weekCat[e.category] = (weekCat[e.category] || 0) + toAudCents(e.amount, e.currency, rate);
-    });
-    var weekTopCat = Object.entries(weekCat).sort(function(a,b) { return b[1]-a[1]; })[0];
-    var insightHtml = '';
-    if (weekTopCat) {
-      var wc = categoryById(weekTopCat[0]);
-      insightHtml = '本周支出 <strong>' + formatAmount(weekTotal, 'AUD') + '</strong>';
-      if (lastCombined > 0) {
-        var weekAvg = lastCombined / 4;
-        if (weekTotal > weekAvg) {
-          insightHtml += '，高于周均水平。';
-        } else {
-          insightHtml += '，<strong style="color:#5c7a52;">低于周均</strong>，控制得当 👍';
-        }
-      }
-      insightHtml += ' 最大支出：' + (wc ? wc.icon + ' ' + wc.zh : '—') + ' ' + formatAmount(weekTopCat[1], 'AUD') + '。';
-    } else {
-      insightHtml = '本周暂无支出记录。开始记账吧 ✍️';
-    }
-
-    var container = document.getElementById('page-dashboard');
-    var existingTotal = container.querySelector('.dash-total');
-    var existingCats = container.querySelector('.dash-categories');
-    var existingInsight = container.querySelector('.dash-insight');
 
     var currencyDetail = '';
-    if (isMultiCurrency) {
-      currencyDetail = '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">AUD $' + (audTotal/100).toFixed(2) + ' + CNY ¥' + (cnyTotal/100).toFixed(2) + ' (≈' + rate.toFixed(1) + ':1)</div>';
+    if (audTotal > 0 && cnyTotal > 0) {
+      currencyDetail = '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">AUD $' + (audTotal / 100).toFixed(2) + ' + CNY ¥' + (cnyTotal / 100).toFixed(2) + '</div>';
     } else if (cnyTotal > 0) {
-      currencyDetail = '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">CNY ¥' + (cnyTotal/100).toFixed(2) + '</div>';
+      currencyDetail = '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">CNY ¥' + (cnyTotal / 100).toFixed(2) + ' · 按汇率折算</div>';
     }
 
-    var totalHtml = '<div class="dash-total">' +
-      '<div class="period">' + getMonthLabel(month) + ' (Monthly Spending)</div>' +
-      '<div class="amount">' + formatAmount(combinedTotal, 'AUD') + '</div>' +
-      currencyDetail +
-      changeHtml +
-      '</div>';
+    var topCategory = sortedCategories.length ? categoryById(sortedCategories[0][0]) : null;
+    var insight = combinedTotal > 0
+      ? '本月共记录 <strong>' + spending.length + '</strong> 笔支出，' + noSpendDays + ' 天无支出。' +
+        (topCategory ? '占比最高的是 ' + topCategory.icon + ' <strong>' + escHtml(topCategory.zh) + '</strong>。' : '') +
+        (highestDay ? '单日最高为 ' + highestDay + ' 日的 <strong>' + formatAmount(highestValue, 'AUD') + '</strong>。' : '')
+      : '本月还没有支出记录，添加第一笔后这里会自动生成分析。';
 
-    var catsHtml = top3.length > 0 ? '<div class="card-header">📊 分类占比 (Category Breakdown)</div><div class="dash-categories">' + catHtml + '</div>' : '';
-
-    var insightFullHtml = '<div class="dash-insight">' +
-      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">📝 本周洞察 (Weekly Insight)</div>' +
-      insightHtml +
-      '</div>';
-
-    // Preserve month nav, replace data sections
+    var container = document.getElementById('page-dashboard');
     var navHtml = container.querySelector('.month-nav') ? container.querySelector('.month-nav').outerHTML : '';
     var warnHtml = container.querySelector('.dash-backup-warn') ? container.querySelector('.dash-backup-warn').outerHTML : '';
-    container.innerHTML = warnHtml + navHtml + totalHtml + catsHtml + insightFullHtml;
+    var totalHtml = '<div class="dash-total"><div class="period">' + getMonthLabel(month) + ' · 月度支出</div>' +
+      '<div class="amount">' + formatAmount(combinedTotal, 'AUD') + '</div>' + currencyDetail + changeHtml + '</div>';
+    var metricsHtml = '<div class="metric-grid">' +
+      '<div class="metric-item"><div class="metric-label">日均支出</div><div class="metric-value">' + formatAmount(dailyAverage, 'AUD') + '</div><div class="metric-sub">按日历天计算</div></div>' +
+      '<div class="metric-item"><div class="metric-label">支出笔数</div><div class="metric-value">' + spending.length + '</div><div class="metric-sub">Transactions</div></div>' +
+      '<div class="metric-item"><div class="metric-label">净结余</div><div class="metric-value">' + formatAmount(incomeTotal - combinedTotal, 'AUD') + '</div><div class="metric-sub">收入减支出</div></div>' +
+      '</div>';
+    var trendHtml = '<section class="analytics-panel"><div class="analytics-header"><div class="analytics-title">每日支出趋势</div><div class="analytics-caption">AUD equivalent</div></div>' + renderDailyChart(dailySeries) + '</section>';
+    var categoryHtml = '<section class="analytics-panel"><div class="analytics-header"><div class="analytics-title">分类占比</div><div class="analytics-caption">前 6 类</div></div>' + renderCategoryRanking(sortedCategories, combinedTotal) + '</section>';
+    var paymentHtml = '<section class="analytics-panel"><div class="analytics-header"><div class="analytics-title">支付方式</div><div class="analytics-caption">现金也在这里统计</div></div>' + renderPaymentAnalysis(expenses, rate) + '</section>';
+    var notesHtml = '<section class="analytics-panel"><div class="analytics-header"><div class="analytics-title">最近备注</div><div class="analytics-caption">本月最近 4 条</div></div>' + renderRecentNotes(expenses) + '</section>';
+    var insightHtml = '<div class="dash-insight"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">消费洞察</div>' + insight + '</div>';
+
+    container.innerHTML = warnHtml + navHtml + totalHtml + metricsHtml + trendHtml + categoryHtml + paymentHtml + notesHtml + insightHtml;
   });
 }
 
@@ -1556,16 +1732,19 @@ function renderDashboardData(month, expenses) {
 var addState = {
   amount: '',
   category: null,
+  categoryGroup: 'common',
   note: '',
   date: todayStr(),
   isTaxDeductible: false,
   paymentMethod: 'debit',
-  currency: 'AUD'
+  currency: 'AUD',
+  pendingImages: []
 };
 
 function renderAddEntry() {
   addState.amount = '';
   addState.category = null;
+  addState.categoryGroup = 'common';
   addState.note = '';
   addState.date = todayStr();
   addState.isTaxDeductible = false;
@@ -1586,8 +1765,13 @@ function renderAddEntry() {
 
   // Category grid
   html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">选择分类 (Category)</div>';
+  html += '<div class="category-group-bar" id="category-group-bar">';
+  CATEGORY_GROUPS.forEach(function(group) {
+    html += '<button type="button" class="category-group-tab' + (group.id === addState.categoryGroup ? ' selected' : '') + '" data-group="' + group.id + '" onclick="App.selectCategoryGroup(\'' + group.id + '\')">' + group.zh + '</button>';
+  });
+  html += '</div>';
   html += '<div class="cat-grid" id="cat-grid">';
-  CATEGORIES.forEach(function(cat) {
+  categoriesForGroup(addState.categoryGroup).forEach(function(cat) {
     html += '<div class="cat-chip" data-cat="' + cat.id + '" onclick="App.selectCategory(\'' + cat.id + '\')">';
     html += '<span class="cat-chip-icon">' + cat.icon + '</span>';
     html += '<span class="cat-chip-name">' + cat.zh + '</span>';
@@ -1598,21 +1782,22 @@ function renderAddEntry() {
 
   // Note input
   html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">备注 (Note) · 可选</div>';
-  html += '<input class="input mb-8" id="note-input" type="text" placeholder="例如: Coles 超市采购 (e.g. Coles groceries)" value="" oninput="addState.note=this.value">';
+  html += '<textarea class="input note-input mb-8" id="note-input" maxlength="120" placeholder="例如：Coles 买菜、悉尼飞墨尔本机票" oninput="App.onNoteInput(this.value)"></textarea>';
 
   // Payment method
   html += '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">支付方式 (Payment)</div>';
-  html += '<div class="entry-extras" id="payment-methods">';
+  html += '<div class="payment-grid" id="payment-methods">';
   PAYMENT_METHODS.forEach(function(pm) {
-    html += '<span class="tag' + (pm.id === 'debit' ? ' selected' : '') + '" data-pm="' + pm.id + '" onclick="App.selectPayment(\'' + pm.id + '\')">' + pm.zh + ' <span style="font-size:9px;color:var(--text-muted)">' + pm.en + '</span></span>';
+    html += '<button type="button" class="payment-chip' + (pm.id === addState.paymentMethod ? ' selected' : '') + '" data-pm="' + pm.id + '" onclick="App.selectPayment(\'' + pm.id + '\')">' +
+      '<span class="payment-chip-icon">' + pm.icon + '</span><span class="payment-chip-label">' + pm.zh + '</span></button>';
   });
   html += '</div>';
 
-  // Tax deductible toggle
-  html += '<div class="entry-extras mb-8">';
-  html += '<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary);cursor:pointer;">';
-  html += '<input type="checkbox" id="tax-check" onchange="addState.isTaxDeductible=this.checked"> 🏷️ 可退税 (Tax Deductible)';
-  html += '</label>';
+  // Date and tax settings
+  html += '<div class="entry-row">';
+  html += '<label><span class="field-label">日期 (Date)</span><input class="input" id="expense-date" type="date" value="' + addState.date + '" onchange="App.onDateInput(this.value)"></label>';
+  html += '<label><span class="field-label">税务标记 (Tax)</span><span class="input" style="display:flex;align-items:center;gap:7px;min-height:42px;padding:9px 10px;">' +
+    '<input type="checkbox" id="tax-check" onchange="App.onTaxToggle(this.checked)"> 可抵扣</span></label>';
   html += '</div>';
 
   // Image attachments
@@ -1642,6 +1827,39 @@ function onAmountInput(val) {
   addState.amount = cleaned;
 }
 
+function renderCategoryGrid() {
+  var grid = document.getElementById('cat-grid');
+  if (!grid) return;
+  var html = '';
+  categoriesForGroup(addState.categoryGroup).forEach(function(cat) {
+    html += '<div class="cat-chip' + (addState.category === cat.id ? ' selected' : '') + '" data-cat="' + cat.id + '" onclick="App.selectCategory(\'' + cat.id + '\')">' +
+      '<span class="cat-chip-icon">' + cat.icon + '</span>' +
+      '<span class="cat-chip-name">' + cat.zh + '</span>' +
+      '<span class="cat-chip-en">' + cat.en + '</span></div>';
+  });
+  grid.innerHTML = html;
+}
+
+function selectCategoryGroup(groupId) {
+  addState.categoryGroup = groupId;
+  document.querySelectorAll('#category-group-bar .category-group-tab').forEach(function(tab) {
+    tab.classList.toggle('selected', tab.dataset.group === groupId);
+  });
+  renderCategoryGrid();
+}
+
+function onNoteInput(value) {
+  addState.note = String(value || '').slice(0, 120);
+}
+
+function onDateInput(value) {
+  addState.date = value || todayStr();
+}
+
+function onTaxToggle(checked) {
+  addState.isTaxDeductible = !!checked;
+}
+
 function selectCategory(catId) {
   // Toggle: click again to deselect
   if (addState.category === catId) {
@@ -1660,19 +1878,10 @@ function selectCategory(catId) {
 }
 
 function selectPayment(pmId) {
-  // Toggle: click again to deselect
-  if (addState.paymentMethod === pmId) {
-    addState.paymentMethod = null;
-    document.querySelectorAll('#payment-methods .tag').forEach(function(t) {
-      t.classList.remove('selected');
-    });
-    return;
-  }
   addState.paymentMethod = pmId;
-  var tags = document.querySelectorAll('#payment-methods .tag');
+  var tags = document.querySelectorAll('#payment-methods .payment-chip');
   tags.forEach(function(t) {
-    t.classList.remove('selected');
-    if (t.dataset.pm === pmId) t.classList.add('selected');
+    t.classList.toggle('selected', t.dataset.pm === pmId);
   });
 }
 
@@ -1782,10 +1991,10 @@ function recordExpense() {
   var expenseId = uid();
   var record = {
     id: expenseId,
-    amount: addState.category === 'income' ? -cents : cents,
+    amount: isIncomeCategory(addState.category) ? -cents : cents,
     category: addState.category,
     currency: addState.currency,
-    note: addState.note || null,
+    note: addState.note.trim() || null,
     date: addState.date,
     isTaxDeductible: addState.isTaxDeductible,
     paymentMethod: addState.category === 'income' ? 'transfer' : addState.paymentMethod,
@@ -1841,12 +2050,16 @@ function renderTransactions() {
   html += '</div>';
 
   // Category filter
-  html += '<div class="filter-bar" id="txn-filter-bar">';
-  html += '<span class="tag' + (!txnFilter.category ? ' selected' : '') + '" onclick="App.onTxnFilter(null)">全部 (All)</span>';
-  CATEGORIES.forEach(function(cat) {
-    html += '<span class="tag' + (txnFilter.category === cat.id ? ' selected' : '') + '" onclick="App.onTxnFilter(\'' + cat.id + '\')">' + cat.icon + ' ' + cat.zh + '</span>';
+  html += '<div class="txn-filter-row"><select class="input" id="txn-category-filter" onchange="App.onTxnFilter(this.value || null)">';
+  html += '<option value="">全部分类 (All Categories)</option>';
+  CATEGORY_GROUPS.filter(function(group) { return group.id !== 'common'; }).forEach(function(group) {
+    html += '<optgroup label="' + group.zh + '">';
+    categoriesForGroup(group.id).forEach(function(cat) {
+      html += '<option value="' + cat.id + '"' + (txnFilter.category === cat.id ? ' selected' : '') + '>' + cat.icon + ' ' + cat.zh + '</option>';
+    });
+    html += '</optgroup>';
   });
-  html += '</div>';
+  html += '</select></div>';
 
   // Month selector
   html += '<div class="month-nav">';
@@ -1902,7 +2115,7 @@ function loadTransactions() {
       var items = groups[date];
       var audDay = 0, cnyDay = 0;
       items.forEach(function(e) {
-        if (e.category === 'income') return; // skip income in daily total
+        if (isIncomeCategory(e.category)) return; // skip income/refunds in daily total
         if (e.currency === 'CNY') cnyDay += e.amount;
         else audDay += e.amount;
       });
@@ -1919,18 +2132,19 @@ function loadTransactions() {
       items.forEach(function(e) {
         var cat = categoryById(e.category);
         var pm = paymentById(e.paymentMethod);
-        var isIncome = e.category === 'income';
+        var isIncome = isIncomeCategory(e.category);
         var icon = cat ? cat.icon : '📌';
         var name = cat ? cat.zh + ' (' + cat.en + ')' : '未知 (Unknown)';
         var borderColor = cat ? cat.color : '#b0b0b0';
-        var noteDisplay = e.note || (cat ? cat.zh : '');
-        var pmDisplay = pm ? pm.zh : '';
+        var hasNote = !!(e.note && String(e.note).trim());
+        var noteDisplay = hasNote ? String(e.note).trim() : cat.zh;
+        var pmDisplay = pm.icon + ' ' + pm.zh;
 
         html += '<div class="txn-item" style="border-left-color:' + borderColor + ';" onclick="App.editExpense(\'' + e.id + '\')">';
         html += '<span class="txn-icon">' + icon + '</span>';
         html += '<div class="txn-info">';
-        html += '<div class="txn-title">' + escHtml(noteDisplay) + '</div>';
-        html += '<div class="txn-meta">' + (cat ? cat.zh + ' (' + cat.en + ')' : '') + ' · ' + pmDisplay + (e.isTaxDeductible ? ' · 🏷️' : '') + '</div>';
+        html += '<div class="txn-title">' + (hasNote ? '📝 ' : '') + escHtml(noteDisplay) + '</div>';
+        html += '<div class="txn-meta">' + cat.zh + ' (' + cat.en + ') · ' + pmDisplay + (e.isTaxDeductible ? ' · 🏷️ 可抵扣' : '') + '</div>';
         html += '</div>';
         html += '<div class="txn-amount ' + (isIncome ? 'income' : 'expense') + '">' + (isIncome ? '+' : '-') + formatAmount(Math.abs(e.amount), e.currency || 'AUD') + '</div>';
         html += '</div>';
@@ -1948,10 +2162,6 @@ function onTxnSearch(val) {
 
 function onTxnFilter(catId) {
   txnFilter.category = catId;
-  var tags = document.querySelectorAll('#txn-filter-bar .tag');
-  tags.forEach(function(t) {
-    t.classList.remove('selected');
-  });
   loadTransactions();
 }
 
@@ -2677,6 +2887,10 @@ function escHtml(str) {
 var App = {
   // Navigation
   onAmountInput: onAmountInput,
+  onNoteInput: onNoteInput,
+  onDateInput: onDateInput,
+  onTaxToggle: onTaxToggle,
+  selectCategoryGroup: selectCategoryGroup,
   selectCategory: selectCategory,
   selectPayment: selectPayment,
   toggleCurrency: toggleCurrency,

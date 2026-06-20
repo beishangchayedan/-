@@ -1,5 +1,5 @@
-const CACHE_NAME = 'aussie-ledger-v3';
-const APP_SHELL = ['./', './index.html', './sw.js'];
+const CACHE_NAME = 'aussie-ledger-v4';
+const APP_SHELL = ['./index.html'];
 
 // Install: cache the app shell immediately
 self.addEventListener('install', event => {
@@ -22,19 +22,25 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: cache-first for app shell, network-first for everything else
+// Fetch: refresh the app when online, fall back to the cached shell offline.
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
-  // For navigation (HTML page loads): cache-first so PWA works offline
+  // Navigation is network-first so deployed fixes reach installed phones.
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      caches.match('./index.html').then(cached => cached || fetch(event.request))
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
     );
     return;
   }
 
-  // For other resources: cache-first, fallback to network
+  // Other local resources are cache-first with a network fallback.
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
