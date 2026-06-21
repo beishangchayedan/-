@@ -1,5 +1,9 @@
-const CACHE_NAME = 'aussie-ledger-v4';
-const APP_SHELL = ['./index.html'];
+const CACHE_NAME = 'aussie-ledger-v5';
+const APP_SHELL = [
+  './index.html',
+  './manifest.webmanifest',
+  './app-icon.svg'
+];
 
 // Install: cache the app shell immediately
 self.addEventListener('install', event => {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="澳洲记账本">
+  <rect width="512" height="512" rx="112" fill="#2f6f5e"/>
+  <rect x="116" y="82" width="294" height="348" rx="38" fill="#ffffff"/>
+  <rect x="116" y="82" width="58" height="348" rx="28" fill="#d5a84b"/>
+  <path d="M212 184h150M212 252h150M212 320h96" fill="none" stroke="#2d3832" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="348" cy="348" r="44" fill="#3f668a"/>
+  <path d="M348 319v58M319 348h58" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+</svg>
